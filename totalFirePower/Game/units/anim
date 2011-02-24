@@ -1,0 +1,12 @@
+//this unit is Servo assisted!
+//Servo: freeware animation for TA,
+//by John Stewart - Rhad@flash.net 
+anim()
+{
+sleep 88;
+turn sleeve to y-axis <-14.000000> now;
+turn sleeve to x-axis <349.000000> now;
+turn flare1 to y-axis <2.000000> now;
+turn flare1 to x-axis <-2.000000> now;
+turn flare1 to z-axis <74.000000> now;
+}

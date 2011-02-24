@@ -1,0 +1,23 @@
+// ccArrayList.cpp: implementation of the ccArrayList class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "../src/stdafx.h"
+#include "ccArrayList.h"
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+ccArrayList::ccArrayList(ArrayListType Type, UINT BytesPerEntry )
+: CArrayList(Type, BytesPerEntry)
+{
+	
+}
+/*
+ccArrayList::~ccArrayList()
+{
+
+}
+
+ */

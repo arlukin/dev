@@ -1,0 +1,48 @@
+[GlobalHeader]
+	{
+	missionname=Untitled Map;
+	missiondescription=3 x 3 Map;
+	planet=;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=0;
+	mapping=0;
+	tidalstrength=10;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=;
+	minwindspeed=0;
+	maxwindspeed=3000;
+	gravity=112;
+	waterdoesdamage=;
+	waterdamage=;
+	numplayers=2;
+	size=3 x 3;
+	memory=16 mb;
+	useonlyunits=Metal Heck.tdf;
+	DestroyAllUnits=1;
+	AllUnitsKilled=1;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=DEFAULT;
+		SurfaceMetal=3;
+		MohoMetal=30;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			}
+		}
+	}

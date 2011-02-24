@@ -1,0 +1,194 @@
+             Researched by Saruman & Bobban / DFR Engineering
+                        (srm_dfr@hotmail.com)
+        
+ ----------------  ------------------------------------------------------
+                     '97
+                           Total Annihilation .TNT MAP File Format Hacked
+                      
+                           
+
+ v0.0.4
+ ======
+
+ We want the mapeditor _NOW!_ :-)
+
+ Me (Saruman/dFR) and my friend (Bobban/dFR) spent some hours hacking the
+ .TNT fileformat tonight. Almost the complete fileformat has now been
+ debunked.
+
+ If anythings seems unclear (I wrote this early morning so it pretty much
+ sucks) feel free to inspect my sourcecode for TAtool and see if the problem
+ is addressed in there.
+
+ First, the header (all entries named by me, not official!)
+
+  Variable Name       Size           Offset
+  ============================================
+  IDversion           Longword       { $00- }
+  Width               Longword       { $04- }
+  Height              Longword       { $08- }       (weird, 6 more than used?!)
+  PTRmapdata          Longword       { $0C- }
+  PTRmapattr          Longword       { $10- }
+  PTRtilegfx          Longword       { $14- }
+  tiles               Longword       { $18- }
+  tileanims           Longword       { $1C- }
+  PTRtileanim         Longword       { $20- }
+  sealevel            Longword       { $24- }
+  PTRminimap          Longword       { $28- }
+  unknown1            Longword       { $2C- }
+  pad1,pad2,pad3,pad4 Longwords      { $30-3F }
+
+
+ Explanation of the header
+ =========================
+
+ "IDversion" - Probably an ID marker or version information. Decodes to
+ 8192 decimal on all maps.
+
+ "Width" - The width of the map.
+
+ "Height" - The height of the map.
+
+ "PTRmapdata" - A pointer into the file (absolute from the first byte of
+ the file, byte/offset 0) where the map-data begins. Mapdata are simply a
+ block of wordsized entries, each entry the index of the graphic tile to use
+ at this position. The relationship map-size and map-data is as follows:
+ (height/2)*(width/2)*2 = size in bytes of map-data (ie, the width/height
+ in the header is in a different unit and must be divided by two).
+
+ "PTRmapattr" - Pointer to map/tile attributes. Not fully understood as of
+ writing. It's longword sized (4 bytes) AA BBBB CC where AA is the elevation
+ at this tile, BBBB is an index to which special (if any) that is placed on
+ this location. CC is.. unknown. BBBB equals $FFFF if no special item is to
+ be placed at this location. See also PTRtileanim.
+
+ "PTRtilegfx" - Pointer to tile graphics. Yes, now you know why the maps are
+ -huge- and why they require so much memory. I'll discuss the pros and cons of
+ this later on. The tiles are 32*32 pixels (1024 bytes)
+
+ "Tiles" - :-) ... Just the number of unique graphical tiles in the file.
+
+ "tileanims" - Number of structures in the PTRtileanims list. See below.
+
+ "PTRtileanims" - A pointer to a list of the special items that are to be
+ placed on the map. These are things like vents, mines and such (animated 
+ things, thus the name. (But also trees and stones)). The structure itself
+ has yet to be cracked, but it starts with an unique identifier in the
+ form of a zero-terminated string of 12 bytes. This identifier is used to
+ load the graphics for this item from a master file. The other data has yet
+ to be hacked, but it doesn't seem to change much and could probably be copied
+ as-is if creating a new map (?!). Further research of this in progress.
+
+ "sealevel" - Every height lower than this is considered to be 'under water'
+
+ "PTRminimap" - Pointer to the minimap-graphics. The entry pointed to is a
+ simple structure of two longwords - width & height (which always seems to
+ be set to FC (252 pixels)) and 252*252 bytes of data (pixel data). If the
+ map has a smaller height than 252, the header still says 252 but the pixel-
+ data is padded by $DD's. I cannot figure out the reason for this.
+
+ "unknown1" - Haven't looked at this. Boolean?
+
+ "padX" - seems to be padding/reserved for future use
+
+ Well, that's about that. The included tool TATOOL was developed by me in
+ parallell with the research of the fileformat. It's not very useful, but
+ it can be of help if you want to play with a mapfile.
+
+ Interresting Notes
+ ==================
+
+ The massive size of the maps are due to the fact that they contain ALL
+ the graphics needed for the terrain, with the exception of the special
+ animated objects. This is both good and bad;
+
+  Good
+  ====
+    If you have the .TNT file - you have what's required to play it.
+     You don't need to rely on external textures.
+    The freedom of not having to rely on pre-made textures.
+
+  Bad
+  ===
+    Filesize
+     ..impact on memory-consumption and transfer times.
+
+  One "good" thing about this is that it is possible to create _HUGE_
+  maps that still are playable on low-memory systems. JUST DON'T USE A
+  LOT OF DIFFERENT TILES! I'm sure this comes as a relief to all of you
+  who haven't got 80Mb (as I do :-)
+
+  I see a future full of cool addons to Total Annihilation.
+
+    Map compressors. Remove 'almost-identical' tiles to reduce map
+     memory requirements. This is very doable and I will probably produce
+     this utility myself if noone beats me to it (please do! :-)
+
+    Digital Elevation Map/Fractal => MAP converter. Tres cool!
+     (You could also do a pornpicture => MAP converter.. er.. :-)
+
+    Map resizers. Should be possible, but I don't think I'm about to do
+     one. A simple method would be to tile map-data. A better method
+     would be to 'expand' the mapdata and fill the blanks using some sort
+     of interpolation/neighbouring tile method. Could be an interresting
+     programming assignment
+
+    Map Resource Tools. So that we wouldn't have to transfer
+     tile-graphics with the maps. Release a tile-lib and 'link' it to
+     your map before playing. TATool could easily be fitted with
+     functions for this (extract Mapdata+MapAttr, TileGFX, PTRTileAnim -
+     include the same to any other file - recalculate header..)
+
+    Map Generators. I _really_ hope one is included with the Official
+     MapEditor(TM). Tweak some parameters, input random seed. Push
+     _GENERATE_. This is a must! Post the parameters + seed value on the
+     net and others would be able to generate the exact same map.
+
+    Mirror/Shift maps... etc.. etc...
+
+
+ Well, that's about that. Ofcourse, this could become sort of obsolete when
+ the official MapEditor is released.. but it sort of depends on how good it
+ is. I'm sure there's a market for 3:rd party tools, and if my and my
+ friends research was of any help.. well, we're glad to be of service!
+
+ Please greet us in your products! :-)
+
+ /%/)+Saruman / DFR Research & Engineering.
+
+PS.
+
+ You need to extract the files from *.HPI in order to inspect them. Tools
+ for this should be available elsewhere. The cracked version has already
+ been extracted.
+
+ Contacting us
+ =============
+
+ Saruman:
+
+  email: srm_dfr@hotmail.com (my nice saruman@saru.ct.se is dead, hotmail
+                              will have to do for the time being... :-( 
+  homepage: http://hem2.passagen.se/eddy1/
+  BBS: +46-16-515209 (don't call from abroad if it costs you money, I have
+                      nothing much of interrest on my board.
+  FidoNet: eddy l o jansson @ 2:206/233 (I read the international PASCAL &
+                                         80XXX areas. You can FREQ the latest
+                                         TAtool using the magic name 'TATOOL')
+  IRC: 'eddy' or 'saruman' on IRCNET #eskilstuna & #cracking
+
+ Bobban:
+
+  email: tfy96rrg@mds.mdh.se                  (@mail.mds.mdh.se?)
+  homepage: http://www.mds.mdh.se/~tfy96rrg/  (not done)
+  Fidonet: robert risberg @ 2:206/233
+
+ Greetings
+ =========
+
+   Bobban for co-hacking this with me.
+   All DFR Members.
+   webmaster@annihilated.com - great site (http://www.annihilated.com)
+   Friends and family.
+
+ Keep on cracking!
