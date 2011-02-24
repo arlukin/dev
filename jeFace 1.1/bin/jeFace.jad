@@ -1,0 +1,12 @@
+IMG-SLEEPY: /face/sleepy.png
+IMG-WELCOME: /face/normal.png
+MIDlet-1: jeFace, jeFace.png, jeFace
+MIDlet-Jar-Size: 72679
+MIDlet-Jar-URL: jeFace.jar
+MIDlet-Name: jeFace
+MIDlet-Vendor: CyberCow
+MIDlet-Version: 1.1
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
+WAV-SLEEPY: /sound/Sleepy.wav
+WAV-WELCOME: /sound/Welcome.wav
