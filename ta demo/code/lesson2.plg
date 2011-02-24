@@ -1,0 +1,59 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: lesson2 - Win32 Sphere Projection--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP123.tmp" with contents
+[
+/nologo /o"lesson2___Win32_Sphere_Projection/lesson2.bsc" 
+".\lesson2___Win32_Sphere_Projection\3DOParser.sbr"
+".\lesson2___Win32_Sphere_Projection\Bitmap.sbr"
+".\lesson2___Win32_Sphere_Projection\Camera.sbr"
+".\lesson2___Win32_Sphere_Projection\DrawTree.sbr"
+".\lesson2___Win32_Sphere_Projection\DrawUI.sbr"
+".\lesson2___Win32_Sphere_Projection\DrawWater.sbr"
+".\lesson2___Win32_Sphere_Projection\FeatureHandler.sbr"
+".\lesson2___Win32_Sphere_Projection\float3.sbr"
+".\lesson2___Win32_Sphere_Projection\Gaf.sbr"
+".\lesson2___Win32_Sphere_Projection\Game.sbr"
+".\lesson2___Win32_Sphere_Projection\glFont.sbr"
+".\lesson2___Win32_Sphere_Projection\glList.sbr"
+".\lesson2___Win32_Sphere_Projection\GlobalStuff.sbr"
+".\lesson2___Win32_Sphere_Projection\Ground.sbr"
+".\lesson2___Win32_Sphere_Projection\GroundDrawer.sbr"
+".\lesson2___Win32_Sphere_Projection\GuiKeyReader.sbr"
+".\lesson2___Win32_Sphere_Projection\hash.sbr"
+".\lesson2___Win32_Sphere_Projection\HpiHandler.sbr"
+".\lesson2___Win32_Sphere_Projection\InfoConsole.sbr"
+".\lesson2___Win32_Sphere_Projection\Lesson2.sbr"
+".\lesson2___Win32_Sphere_Projection\MemPool.sbr"
+".\lesson2___Win32_Sphere_Projection\MiniMap.sbr"
+".\lesson2___Win32_Sphere_Projection\MouseHandler.sbr"
+".\lesson2___Win32_Sphere_Projection\myGL.sbr"
+".\lesson2___Win32_Sphere_Projection\Object.sbr"
+".\lesson2___Win32_Sphere_Projection\otareader.sbr"
+".\lesson2___Win32_Sphere_Projection\ProjectileHandler.sbr"
+".\lesson2___Win32_Sphere_Projection\ReadMap.sbr"
+".\lesson2___Win32_Sphere_Projection\RegHandler.sbr"
+".\lesson2___Win32_Sphere_Projection\Sky.sbr"
+".\lesson2___Win32_Sphere_Projection\TAPalette.sbr"
+".\lesson2___Win32_Sphere_Projection\TextureHandler.sbr"
+".\lesson2___Win32_Sphere_Projection\TimeProfiler.sbr"
+".\lesson2___Win32_Sphere_Projection\TreeDrawer.sbr"
+".\lesson2___Win32_Sphere_Projection\UnitDrawer.sbr"
+".\lesson2___Win32_Sphere_Projection\VertexArray.sbr"
+".\lesson2___Win32_Sphere_Projection\VertexArrayRange.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP123.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+spispring.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
