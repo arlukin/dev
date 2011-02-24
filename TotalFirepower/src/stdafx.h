@@ -34,4 +34,13 @@
 #include "ccDebug.h"
 
 extern PALETTEENTRY taPalette[256];
+
+
+struct POINT3D
+{
+	float x;
+	float y;
+	float z;
+};
+
 #endif

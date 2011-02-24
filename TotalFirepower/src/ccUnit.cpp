@@ -5,6 +5,7 @@
 #include "stdafx.h"
 
 #include "ccTileMap.h"
+#include "cc3do.h"
 #include "ccUnit.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -13,6 +14,10 @@
 
 ccUnit::ccUnit(ccTileMap * tileMap, ccArrayList * unitList)
 {
+	m_pUnitImage = NULL;
+	m_3do = new cc3do;
+
+
 	m_tileMap = tileMap;
 	m_unitList = unitList;
 
@@ -25,14 +30,25 @@ ccUnit::ccUnit(ccTileMap * tileMap, ccArrayList * unitList)
 
 	m_speed = 1;
 	max_speed = 10;
+
+	m_yaw = 0;
+	m_pitch = 0;
+	m_roll = 0;
 }
 
 ccUnit::~ccUnit()
 {
-
+	SAFE_DELETE(m_3do);
 }
 
 //
+
+void ccUnit::rotate(float yaw, float pitch, float roll)
+{
+	m_yaw += yaw;
+	m_pitch += pitch;
+	m_roll += roll;
+}
 
 POINT * ccUnit::getWorldPosition()
 {
@@ -128,6 +144,8 @@ HRESULT ccUnit::validRect(RECT * unitRect)
 //-----------------------------------------------------------------------------
 HRESULT ccUnit::InitDeviceObjects(LPDIRECT3DDEVICE9 pd3dDevice)
 {
+	m_3do->InitDeviceObjects(pd3dDevice);
+
     // Keep a local copy of the device
     m_pd3dDevice = pd3dDevice;
 	
@@ -141,6 +159,8 @@ HRESULT ccUnit::InitDeviceObjects(LPDIRECT3DDEVICE9 pd3dDevice)
 HRESULT ccUnit::RestoreDeviceObjects()
 {
 	HRESULT hr = S_OK;	
+	if (FAILED(m_3do->RestoreDeviceObjects()))
+		return hr;	
 
 	if (FAILED(hr=loadUnit()))
 		return hr;
@@ -154,6 +174,7 @@ HRESULT ccUnit::RestoreDeviceObjects()
 //-----------------------------------------------------------------------------
 HRESULT ccUnit::InvalidateDeviceObjects()
 {	
+	m_3do->InvalidateDeviceObjects();
 	SAFE_RELEASE(m_pUnitImage);
 
     return S_OK;
@@ -165,6 +186,7 @@ HRESULT ccUnit::InvalidateDeviceObjects()
 //-----------------------------------------------------------------------------
 HRESULT ccUnit::DeleteDeviceObjects()
 {
+	m_3do->DeleteDeviceObjects();
     m_pd3dDevice = NULL;    
 
     return S_OK;
@@ -173,6 +195,9 @@ HRESULT ccUnit::DeleteDeviceObjects()
 // draw2DUnit
 HRESULT ccUnit::drawUnit()
 {
+	m_3do->draw((float)m_position.x, (float)m_position.y, 0, m_yaw, m_pitch, m_roll);
+	return S_OK;
+
     if( m_pd3dDevice == NULL )
         return E_FAIL;
 
@@ -260,3 +285,5 @@ HRESULT ccUnit::isCollision(RECT *unitRect)
 	else
 		return S_OK;
 }
+
+

@@ -257,6 +257,14 @@ SOURCE=.\src\ccDebug.h
 # End Group
 # Begin Source File
 
+SOURCE=.\src\cc3do.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\cc3do.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\readme.txt
 # End Source File
 # Begin Source File

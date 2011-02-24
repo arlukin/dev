@@ -25,7 +25,7 @@ const GUID g_guidApp = { 0x3afabad0, 0xd2c0, 0x4514, { 0xb4, 0x7e, 0x65, 0xfe, 0
 const int MAX_DEVICES     = 8;    // The maximum number of allowed devices  
 const int LENGTH_DEV_NAME = 40;   // The maximum length of device names
 const int BUTTON_DOWN     = 0x80; // Mask for determining button state
-const int NUM_OF_ACTIONS  = 17;	  // Number of game action constants
+const int NUM_OF_ACTIONS  = 23;	  // Number of game action constants
 
 
 // Senare ha GAME_ACTIONS beroende på om det är tank, båt, bot, flyg...
@@ -55,7 +55,16 @@ enum GAME_ACTIONS
 	PLAYER2_WEAPONS,
 
 	// System
-	QUIT
+	QUIT,
+
+	// Debug
+	COORDINATE_SPACE,		// Manipulate Z on choosen coord.
+	COORDINATE_Z,			// Unit Rotation
+	COORDINATE_X,			
+	COORDINATE_C,
+	COORDINATE_V,
+	COORDINATE_B,
+
 };
 
 extern DIACTION g_adiaActionMap[];
@@ -81,11 +90,13 @@ private:
 	CMyD3DApplication * m_parent;
 	
 
-public:  //FIX:
+public:  //FIX: Ska vara private
 	LPDIRECTINPUT8  m_pDI;  // DirectInput access pointer
 	DIACTIONFORMAT  m_diaf; // DIACTIONFORMAT structure, used for
 							//   enumeration and viewing config
 	DeviceState     m_aDevices[MAX_DEVICES];  // List of devices
+	
+	DeviceState		m_actionState;	// Sammanslagning av alla devicen.
 	int             m_iNumDevices;			  // Total number of stored devices
 
 	friend BOOL CALLBACK EnumDevicesCallback(LPCDIDEVICEINSTANCE, LPDIRECTINPUTDEVICE8, DWORD, DWORD, LPVOID );
@@ -98,11 +109,6 @@ public:
 	
 	ccSettings(CMyD3DApplication * application);
 	virtual ~ccSettings();
-
-	char m_keyUp;
-	char m_keyDown;
-	char m_keyLeft;
-	char m_keyRight;
 };
 
 #endif // !defined(AFX_CCSETTINGS_H__D3E6FB85_D553_43A3_A0BC_BB204A3DA930__INCLUDED_)

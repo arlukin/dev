@@ -80,7 +80,7 @@ HRESULT ccTileMap::DeleteDeviceObjects()
 
 HRESULT ccTileMap::DrawMap()
 {
-    if( m_pd3dDevice == NULL )
+    if( m_pd3dDevice == NULL || m_header.IDiversion != 8192)
         return E_FAIL;	
 
 	HRESULT hr;
@@ -217,10 +217,6 @@ HRESULT ccTileMap::loadMapData(FILE *stream)
 	if(fread( m_mapLoadData, mapDataSize*2, 1, stream) == 0 || ferror( stream ))
 		return E_FAIL;
 
-
-	int moo = m_mapLoadData[(130*131)+130];
-	moo = m_mapLoadData[(131*131)];
-	moo = m_mapLoadData[0];
 	return S_OK;
 }
 

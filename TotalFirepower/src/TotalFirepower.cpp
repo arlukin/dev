@@ -12,6 +12,11 @@
 #include "ccTileMap.h"
 #include "TotalFirePower.h"
 
+POINT3D g_Position1 = {0, 0, 0};
+POINT3D g_Position2 = {0, 0, -800.0f};
+POINT3D g_Position3 = {0, 0, 0};
+POINT3D g_Position4 = {200, 5000, D3DX_PI/4};
+
 
 //-----------------------------------------------------------------------------
 // Name: WinMain()
@@ -35,10 +40,9 @@ HRESULT CMyD3DApplication::Create(HINSTANCE hInstance)
 	HRESULT hr;
 	if (SUCCEEDED(hr = CD3DApplication::Create(hInstance)))
 		SetTimer( m_hWnd, 1, 1000/30, NULL );
+
 	return hr;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: CMyD3DApplication()
@@ -46,17 +50,18 @@ HRESULT CMyD3DApplication::Create(HINSTANCE hInstance)
 //-----------------------------------------------------------------------------
 CMyD3DApplication::CMyD3DApplication() 
 : m_units(AL_REFERENCE)
-{
+{ 
 	// GFX Modes
     m_strWindowTitle            = TEXT( "TotalFirepower" );
-    m_d3dEnumeration.AppUsesDepthBuffer           = FALSE;
+    m_d3dEnumeration.AppUsesDepthBuffer = FALSE;
+	
     m_pFont                     = new CD3DFont( _T("Arial"), 12, D3DFONT_BOLD );
     m_pFontSmall                = new CD3DFont( _T("Arial"), 9, D3DFONT_BOLD );
 
 	m_bCapture = FALSE;
 
     m_dwCreationWidth   = 800;
-    m_dwCreationHeight  = 600;
+    m_dwCreationHeight  = 800;
 	//m_bStartFullscreen = TRUE;
 	
 	//	
@@ -83,6 +88,7 @@ CMyD3DApplication::CMyD3DApplication()
 
 	m_player2WriteArea.left = m_player2WriteArea.top = 0;
 	m_player2WriteArea.right = m_player2WriteArea.bottom = 0;	
+
 }
 
 CMyD3DApplication::~CMyD3DApplication()
@@ -113,14 +119,6 @@ HRESULT CMyD3DApplication::FinalCleanup()
 
 HRESULT CMyD3DApplication::OneTimeSceneInit()
 {
-    D3DXMatrixIdentity( &m_matTrackBall );    
-
-    D3DXMATRIXA16 matView;
-    D3DXVECTOR3 vFromPt( 0, 10, -10);
-    D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
-    D3DXVECTOR3 vUpVec( 0.0f, -1.0f, 0.0f );
-    D3DXMatrixLookAtLH( &m_matView, &vFromPt, &vLookatPt, &vUpVec );	
-
     return S_OK;
 }
 
@@ -156,34 +154,17 @@ HRESULT CMyD3DApplication::InitDeviceObjects()
 // Desc: Restores scene objects.
 //-----------------------------------------------------------------------------
 HRESULT CMyD3DApplication::RestoreDeviceObjects()
-{
-    // Set miscellaneous render states
+{	
+	// Set miscellaneous render states
     m_pd3dDevice->SetRenderState( D3DRS_DITHERENABLE,   FALSE );
-    m_pd3dDevice->SetRenderState( D3DRS_SPECULARENABLE, FALSE );
+    m_pd3dDevice->SetRenderState( D3DRS_SPECULARENABLE, FALSE);
 
-    // Set the world matrix
-    D3DXMATRIXA16 matIdentity;
-    D3DXMatrixIdentity( &matIdentity );
-    m_pd3dDevice->SetTransform( D3DTS_WORLD,  &matIdentity );
+    // Turn off culling, so we see the front and back of the triangle
+    //m_pd3dDevice->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
 
-    // Set the view matrix.
-    D3DXMATRIXA16 matView;
-    D3DXVECTOR3 vFromPt( 0, 10, -10);
-    D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
-    D3DXVECTOR3 vUpVec( 0.0f, -1.0f, 0.0f );
-    D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );
-    m_pd3dDevice->SetTransform( D3DTS_VIEW, &matView );
+    // Turn off D3D lighting, since we are providing our own vertex colors
+    m_pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
 
-    // Set the projection matrix
-    D3DXMATRIXA16 matProj;
-    FLOAT fAspect = ((FLOAT)m_d3dsdBackBuffer.Width) / m_d3dsdBackBuffer.Height;
-    
-	//FIX:	
-	//D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 1.0f, 100.0f );
-	
-	D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, 1.0f, 1.0f, 100.0f );
-    m_pd3dDevice->SetTransform( D3DTS_PROJECTION, &matProj );
- 
     // Restore the font
 	HRESULT hr;
     if (FAILED(hr = m_pFont->RestoreDeviceObjects()))
@@ -241,7 +222,7 @@ HRESULT CMyD3DApplication::Render()
 
     // Begin the scene
     if( SUCCEEDED( m_pd3dDevice->BeginScene() ) )
-    {
+    {		
 		POINT *player1WorldPos, *player2WorldPos ;
 		SIZE *player1UnitSize, *player2UnitSize;
 
@@ -268,7 +249,7 @@ HRESULT CMyD3DApplication::Render()
 
 			m_pTileMap->setWriteArea(&m_oneScreenWriteArea);							
 			m_pTileMap->centerAround(&oneScreenWorldPos, &noSize);
-			m_pTileMap->DrawMap();
+			m_pTileMap->DrawMap();			
 			drawUnits();
 
 		}
@@ -308,7 +289,7 @@ HRESULT CMyD3DApplication::Render()
 // Desc: Invalidates device objects.  
 //-----------------------------------------------------------------------------
 HRESULT CMyD3DApplication::InvalidateDeviceObjects()
-{
+{	
     m_pFont->InvalidateDeviceObjects();
     m_pFontSmall->InvalidateDeviceObjects();
 
@@ -360,6 +341,7 @@ LRESULT CMyD3DApplication::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 	}
 
     // Capture mouse when clicked
+	/*
     if( WM_LBUTTONDOWN == uMsg )
     {
         D3DXMATRIXA16 matCursor;
@@ -384,6 +366,7 @@ LRESULT CMyD3DApplication::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         m_bCapture = FALSE;
         return 0;
     }
+	*/
 
     return CD3DApplication::MsgProc( hWnd, uMsg, wParam, lParam );
 }
@@ -400,8 +383,9 @@ HRESULT CMyD3DApplication::FrameMove()
 		return hr;
 
     // When the window has focus, let the mouse adjust the camera view
-    if( m_bCapture )
+    //if( m_bCapture )
     {				
+		/*
         D3DXMATRIXA16 matCursor;
         D3DXQUATERNION qCursor = D3DUtil_GetRotationFromCursor( m_hWnd );
         D3DXMatrixRotationQuaternion( &matCursor, &qCursor );
@@ -410,6 +394,7 @@ HRESULT CMyD3DApplication::FrameMove()
         D3DXMATRIXA16 matTrans;
         D3DXMatrixTranslation( &matTrans, 0.0f, 0.0f, -10.0f );
         D3DXMatrixMultiply( &m_matView, &m_matView, &matTrans );
+		*/
     }
 
     return S_OK;
@@ -417,27 +402,156 @@ HRESULT CMyD3DApplication::FrameMove()
 
 HRESULT CMyD3DApplication::checkInput()
 {
-	DWORD dwData;
-	for( int iDevice=0; iDevice < m_settings->m_iNumDevices; iDevice++ )
+	DWORD *dwInput = m_settings->m_actionState.dwInput;
+
+	float currentMousePos = 0;
+	// Coordinate one
+	if (dwInput[COORDINATE_Z])
 	{
+		if (dwInput[COORDINATE_SPACE])
+		{
+		}
+		else
+		{
+			if (dwInput[PLAYER1_DRIVE])
+				m_pPlayer1->getUnit()->movePosition(0, dwInput[PLAYER1_DRIVE]);
+			
+			if (dwInput[PLAYER1_STEER])
+				m_pPlayer1->getUnit()->movePosition(dwInput[PLAYER1_STEER], 0);
+		}		
+	}
+
+	//
+	// Coordinate 1
+	//
+	else if (dwInput[COORDINATE_X])
+	{				
+		if (dwInput[COORDINATE_SPACE])
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position1.z += currentMousePos;				
+				m_pPlayer1->getUnit()->rotate(0, 0, currentMousePos * (2.0f * D3DX_PI) / 1000.0f);				
+			}
+		}
+		else
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position1.x += currentMousePos;
+				m_pPlayer1->getUnit()->rotate(currentMousePos * (2.0f * D3DX_PI) / 1000.0f, 0, 0);
+			}
+
+			if (dwInput[PLAYER1_DRIVE])
+			{				
+				currentMousePos = (float)((short)dwInput[PLAYER1_DRIVE]);		
+				g_Position1.y += currentMousePos;
+				m_pPlayer1->getUnit()->rotate(0, currentMousePos * (2.0f * D3DX_PI) / 1000.0f, 0);				
+			}
+		}
+	}
+
+	//
+	// Coordinate 2
+	//
+	else if (dwInput[COORDINATE_C])
+	{				
+		if (dwInput[COORDINATE_SPACE])
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position2.z += currentMousePos;								
+			}
+		}
+		else
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position2.x += currentMousePos;			
+			}
+
+			if (dwInput[PLAYER1_DRIVE])
+			{				
+				currentMousePos = (float)((short)dwInput[PLAYER1_DRIVE]);		
+				g_Position2.y += currentMousePos;				
+			}
+		}
+	}
+	//
+	// Coordinate 3
+	//
+	else if (dwInput[COORDINATE_V])
+	{				
+		if (dwInput[COORDINATE_SPACE])
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position3.z += currentMousePos;				
+				
+			}
+		}
+		else
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position3.x += currentMousePos;				
+			}
+
+			if (dwInput[PLAYER1_DRIVE])
+			{				
+				currentMousePos = (float)((short)dwInput[PLAYER1_DRIVE]);		
+				g_Position3.y += currentMousePos;				
+			}
+		}
+	}
+	//
+	// Coordinate 4
+	//
+	else if (dwInput[COORDINATE_B])
+	{				
+		if (dwInput[COORDINATE_SPACE])
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position4.z += currentMousePos/10000;				
+				
+			}
+		}
+		else
+		{
+			if (dwInput[PLAYER1_STEER])
+			{
+				currentMousePos = (float)((short)dwInput[PLAYER1_STEER]);		
+				g_Position4.x += currentMousePos;				
+			}
+
+			if (dwInput[PLAYER1_DRIVE])
+			{				
+				currentMousePos = (float)((short)dwInput[PLAYER1_DRIVE]);		
+				g_Position4.y += currentMousePos;				
+			}
+		}
+	}
+	else
+	{
+		DWORD dwData;
 		for( int dwAction=0; dwAction < NUM_OF_ACTIONS; dwAction++ )
 		{
-			dwData = m_settings->m_aDevices[iDevice].dwInput[dwAction];
+			dwData = dwInput[dwAction];
 			if (dwData > 0)
-			{				
+			{			
 				switch (dwAction)
 				{
 					//
 					// Player 1
 					//
-					case PLAYER1_DRIVE:
-						m_pPlayer1->getUnit()->movePosition(0, dwData);
-					break;
-
-					case PLAYER1_STEER:
-						m_pPlayer1->getUnit()->movePosition(dwData, 0);
-					break;
-
 					case PLAYER1_DRIVE_FORWARD:
 						m_pPlayer1->getUnit()->movePosition(0, -1);
 					break;
@@ -491,13 +605,13 @@ HRESULT CMyD3DApplication::checkInput()
 						SendMessage( m_hWnd, WM_CLOSE, 0, 0 );
 						return E_FAIL;
 					break;		
-				}			
+				}					
 			}
 		}		
 	}
-
 	return S_OK;
 }
+
 
 HWND CMyD3DApplication::getWindow()
 {
@@ -577,14 +691,106 @@ void CMyD3DApplication::drawStatistics()
 
 	m_pFont->DrawText( 2, 80, D3DCOLOR_ARGB(255,255,255,0), buffer );
 
+	// Draw Coordination Test position	
+    _sntprintf( buffer, cchBufferSize, _T("Coordination position: (%f, %f, %f)"), g_Position1.x, g_Position1.y, g_Position1.z );	
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+	m_pFont->DrawText( 2, 100, D3DCOLOR_ARGB(255,255,255,0), buffer );
+	
+	//
+    _sntprintf( buffer, cchBufferSize, _T("Coordination position: (%f, %f, %f)"), g_Position2.x, g_Position2.y, g_Position2.z );	
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+	m_pFont->DrawText( 2, 120, D3DCOLOR_ARGB(255,255,255,0), buffer );
+
+	//
+    _sntprintf( buffer, cchBufferSize, _T("Coordination position: (%f, %f, %f)"), g_Position3.x, g_Position3.y, g_Position3.z );	
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+	m_pFont->DrawText( 2, 140, D3DCOLOR_ARGB(255,255,255,0), buffer );
+
+	//
+    _sntprintf( buffer, cchBufferSize, _T("Coordination position: (%f, %f, %f)"), g_Position4.x, g_Position4.y, g_Position4.z );	
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+	m_pFont->DrawText( 2, 160, D3DCOLOR_ARGB(255,255,255,0), buffer );
+
 }
 
 HRESULT CMyD3DApplication::drawUnits()
 {
+	// Setup the world, view, and projection matrices
+	setupMatrix();
+
 	for(int i=0;i<m_units.count();i++)
 	{
 		((ccUnit*)m_units[i])->drawUnit();
 	}
 
 	return S_OK;
+}
+
+void CMyD3DApplication::isD3DSpy()
+{
+    typedef VOID (*D3DSPYBREAK)();
+    HMODULE hModule;
+    D3DSPYBREAK D3DSpyBreak;
+    hModule = LoadLibrary( TEXT("d3d9.dll") );
+    if( hModule != NULL )
+    {
+        D3DSpyBreak = (D3DSPYBREAK)GetProcAddress( hModule, "D3DSpyBreak" );
+        if( D3DSpyBreak != NULL )
+        {
+            MessageBox(NULL, "d3dspy monitoring the program", NULL, MB_OK);
+        }
+        else
+        {
+            // D3DSpy is not monitoring this program.
+        }
+    }
+}
+
+HRESULT CMyD3DApplication::setupMatrix()
+{	
+    // Set up our view matrix. A view matrix can be defined given an eye point,
+    // a point to lookat, and a direction for which way is up. Here, we set the
+    // eye five units back along the z-axis and up three units, look at the
+    // origin, and define "up" to be in the y-direction.
+
+    D3DXVECTOR3 vEyePt( g_Position2.x, g_Position2.y, g_Position2.z );
+    D3DXVECTOR3 vLookatPt( g_Position3.x, g_Position3.y, g_Position3.z );
+    D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
+    D3DXMATRIXA16 matView;
+    D3DXMatrixLookAtLH( &matView, &vEyePt, &vLookatPt, &vUpVec );
+    m_pd3dDevice->SetTransform( D3DTS_VIEW, &matView );
+
+    // For the projection matrix, we set up a perspective transform (which
+    // transforms geometry from 3D view space to 2D viewport space, with
+    // a perspective divide making objects smaller in the distance). To build
+    // a perpsective transform, we need the field of view (1/4 pi is common),
+    // the aspect ratio, and the near and far clipping planes (which define at
+    // what distances geometry should be no longer be rendered).
+    D3DXMATRIXA16 matProj;
+	
+    FLOAT fAspect = ((FLOAT)m_d3dsdBackBuffer.Width) / m_d3dsdBackBuffer.Height;   	
+	D3DXMatrixPerspectiveFovLH( &matProj, g_Position4.z, fAspect, g_Position4.x, g_Position4.y );    
+
+	/*
+	D3DXMatrixPerspectiveOffCenterLH(&matProj,
+		-30, (FLOAT)m_d3dsdBackBuffer.Width,
+		-30, (FLOAT)m_d3dsdBackBuffer.Height,
+		-30, 1000.0f
+	);
+
+	D3DXMatrixPerspectiveOffCenterLH(&matProj,
+		-400.0f, 400.0f,
+		-400.0f, 400.0f,
+		-400.0f, 40.0f
+	*/
+
+    m_pd3dDevice->SetTransform( D3DTS_PROJECTION, &matProj );
+
+	return S_OK;
+}
+
+void CMyD3DApplication::BuildPresentParamsFromSettings()
+{
+	CD3DApplication::BuildPresentParamsFromSettings();
+	return;
 }

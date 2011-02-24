@@ -61,6 +61,9 @@ protected:
     LRESULT MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	
 
 public:
+	void BuildPresentParamsFromSettings();
+	HRESULT setupMatrix();
+	void isD3DSpy();
 	HRESULT drawUnits();
 	void drawStatistics();
 	HWND getWindow();

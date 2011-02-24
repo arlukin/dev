@@ -34,13 +34,16 @@ const TCHAR *ACTION_NAMES[] =
     TEXT("Fire"),	
     TEXT("Weapons"),
 
-	// System
-	TEXT("Quit")
+	// System	
+	TEXT("Quit"),
+
+	// Debug	
+	TEXT("DEBUG")
 };
 
 /* C:\Program Files\Common Files\DirectX\DirectInput\User Maps\*/
 
-const int NUM_OF_ACTIONS_ON_MAP  = 21;	  // Number of game action constants
+const int NUM_OF_ACTIONS_ON_MAP  = 27;	  // Number of game action constants
 DIACTION g_adiaActionMap[NUM_OF_ACTIONS_ON_MAP] =
 {
     // Device input (joystick, etc.) that is pre-defined by DInput according
@@ -61,6 +64,15 @@ DIACTION g_adiaActionMap[NUM_OF_ACTIONS_ON_MAP] =
     // The DIA_APPFIXED constant can be used to instruct DirectInput that the
     // current mapping can not be changed by the user.
     { QUIT,	DIKEYBOARD_F12, DIA_APPFIXED, ACTION_NAMES[QUIT], },
+
+	// Debug
+	{ COORDINATE_SPACE,	DIKEYBOARD_SPACE, DIA_APPFIXED, ACTION_NAMES[COORDINATE_SPACE], },
+	{ COORDINATE_Z,		DIKEYBOARD_Z, DIA_APPFIXED, ACTION_NAMES[COORDINATE_SPACE], },
+	{ COORDINATE_X,		DIKEYBOARD_X, DIA_APPFIXED, ACTION_NAMES[COORDINATE_SPACE], },
+	{ COORDINATE_C,		DIKEYBOARD_C, DIA_APPFIXED, ACTION_NAMES[COORDINATE_SPACE], },
+	{ COORDINATE_V,		DIKEYBOARD_V, DIA_APPFIXED, ACTION_NAMES[COORDINATE_SPACE], },
+	{ COORDINATE_B,		DIKEYBOARD_B, DIA_APPFIXED, ACTION_NAMES[COORDINATE_SPACE], },	
+
 
     // Mouse input mappings
     { PLAYER1_DRIVE,            DIMOUSE_YAXIS,                0,  ACTION_NAMES[PLAYER1_DRIVE], },
@@ -164,19 +176,16 @@ BOOL CALLBACK EnumDevicesCallback( LPCDIDEVICEINSTANCE lpddi,
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+
 ccSettings::ccSettings(CMyD3DApplication * parent)
 {	
 	m_parent = parent;
-
-	m_keyUp =  VK_UP;
-	m_keyDown = VK_DOWN;
-	m_keyLeft = VK_LEFT;
-	m_keyRight = VK_RIGHT;
 
 	m_pDI         = NULL;  // DirectInput access pointer
 	ZeroMemory( &m_diaf, sizeof(DIACTIONFORMAT) ); // DIACTIONFORMAT structure, used for
 												   //   enumeration and viewing config
 	ZeroMemory( &m_aDevices, sizeof(m_aDevices) ); // List of devices
+	ZeroMemory( &m_actionState, sizeof(m_actionState) ); // List of devices
 										   	
 	m_iNumDevices = 0;     // Total number of stored devices
 
@@ -311,7 +320,9 @@ HRESULT ccSettings::checkInput()
 		if( m_aDevices[iDevice].bAxisRelative )
 		{
             m_aDevices[iDevice].dwInput[PLAYER1_DRIVE] = 0;
-			m_aDevices[iDevice].dwInput[PLAYER1_STEER] = 0;			
+			m_aDevices[iDevice].dwInput[PLAYER1_STEER] = 0;	
+			m_actionState.dwInput[PLAYER1_DRIVE] = 0;
+			m_actionState.dwInput[PLAYER1_STEER] = 0;
 		}
 
         for( DWORD j=0; j<dwItems; j++ )
@@ -361,6 +372,7 @@ HRESULT ccSettings::checkInput()
             }
 
             m_aDevices[iDevice].dwInput[dwAction] = dwData;
+			m_actionState.dwInput[dwAction] = dwData;
 			//m_doAction(m_application, iDevice, dwAction, dwData);				
         }
     }

@@ -10,6 +10,7 @@
 #endif // _MSC_VER > 1000
 
 class ccTileMap;
+class cc3do;
 class ccUnit  
 {
 	// A D3DDevice used for rendering
@@ -24,13 +25,21 @@ class ccUnit
 	ccArrayList * m_unitList;	// All units in the game.
 
 	// Unit properties
+	cc3do *m_3do;
+
 	POINT m_position;		// Units left upper corner Pixel position on worldMap.
 	SIZE  m_unitSize;
 	RECT  m_unitRect;		// Positions on the worldMap.
 	short m_speed;
 	short max_speed;
 
+	float m_yaw;
+	float m_pitch;
+	float m_roll;
+
 public:				
+	void rotate(float yaw, float pitch, float roll);
+	HRESULT load3DO(char* filename);
 	HRESULT isCollision(RECT *unitRect);
 	
 	SIZE * getUnitSize() {return &m_unitSize;};
