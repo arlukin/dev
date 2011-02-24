@@ -25,7 +25,7 @@ const GUID g_guidApp = { 0x3afabad0, 0xd2c0, 0x4514, { 0xb4, 0x7e, 0x65, 0xfe, 0
 const int MAX_DEVICES     = 8;    // The maximum number of allowed devices  
 const int LENGTH_DEV_NAME = 40;   // The maximum length of device names
 const int BUTTON_DOWN     = 0x80; // Mask for determining button state
-const int NUM_OF_ACTIONS  = 15;	  // Number of game action constants
+const int NUM_OF_ACTIONS  = 17;	  // Number of game action constants
 
 
 // Senare ha GAME_ACTIONS beroende på om det är tank, båt, bot, flyg...
@@ -42,6 +42,19 @@ enum GAME_ACTIONS
 	PLAYER1_FIRE,
 	PLAYER1_WEAPONS,
 
+	// Player 2
+	PLAYER2_DRIVE,
+	PLAYER2_DRIVE_FORWARD,
+	PLAYER2_DRIVE_BACKWARD,
+
+	PLAYER2_STEER,
+	PLAYER2_STEER_LEFT,
+	PLAYER2_STEER_RIGHT,
+
+	PLAYER2_FIRE,
+	PLAYER2_WEAPONS,
+
+	// System
 	QUIT
 };
 

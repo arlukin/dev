@@ -161,6 +161,14 @@ SOURCE=.\common\include\dxutil.h
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\src\ccDebug.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\ccDebug.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\ccPlayer.cpp
 # End Source File
 # Begin Source File

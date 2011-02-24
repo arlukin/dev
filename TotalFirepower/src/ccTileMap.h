@@ -17,8 +17,8 @@ class ccTileMap
 	struct TAMAP
 	{
 		long IDiversion;
-		long MapWidth;
-		long MapHeight;
+		long MapWidth;		// Divide by two to get the num of tiles in width
+		long MapHeight;		// or in height.
 		long PTRMapData;
 		long PTRMapAttr;
 		long PTRTileGfx;
@@ -41,11 +41,22 @@ class ccTileMap
 	unsigned short *m_mapLoadData;
 	LPDIRECT3DSURFACE9 	*m_pTileSurface;
 
+	// 
+	RECT m_writeArea;
+
 	short m_tileWidth;	// Width of a tile in pixels
 	short m_tileHeight;
 	
-	long m_mapWidth;	// Width of the map in pixels
-	long m_mapHeight;
+	// The World
+	POINT m_worldPosition;	// The position of the screens top left corner on the worldmap
+	SIZE m_worldSize;		// Size of the worldMap in pixels.	
+	SIZE m_worldTileSize;	// Size of the worldMap in tiles.
+
+	// Draw properties, used by DrawMap
+	POINT m_drawStartTile;
+	SIZE m_drawNumTile;
+	POINT m_drawStartPixel;
+
 
 protected:
 		
@@ -53,8 +64,13 @@ protected:
 	HRESULT loadMapData(FILE *stream);
 	HRESULT loadTileData(FILE *stream);
 public:	
+	SIZE * getWorldSize();
+	POINT *getWorldPosition();
+	void centerAround(POINT *worldPosition, SIZE * unitSize);
+	RECT *getWriteArea();
+	void setWriteArea(RECT const * const writeArea);	
 
-	HRESULT DrawMap(RECT const * const writeArea, POINT const * const centerPoint);
+	HRESULT DrawMap();
     
 	// Initializing and destroying device-dependent objects
 	HRESULT InitDeviceObjects( LPDIRECT3DDEVICE9 pd3dDevice );

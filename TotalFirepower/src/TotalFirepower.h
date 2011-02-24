@@ -36,8 +36,12 @@ class CMyD3DApplication : public CD3DApplication
     CD3DFont* m_pFontSmall;				// Font for drawing text
 
 	ccTileMap  *m_pTileMap;				// Loaded map	
- 	ccPlayer   *m_pPlayer;				// The players
+ 	ccPlayer   *m_pPlayer1;				// The player
+	ccPlayer   *m_pPlayer2;				// The player
 	ccSettings *m_settings;	
+
+	RECT m_player1WriteArea;
+	RECT m_player2WriteArea;
 
 protected:    
 
@@ -54,9 +58,10 @@ protected:
     LRESULT MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	
 
 public:
+	void drawStatistics();
 	HWND getWindow();
 	HRESULT checkInput();
-	static HRESULT CALLBACK deviceAction(CMyD3DApplication * application, int iDevice, DWORD dwAction, DWORD dwData);	
+	//static HRESULT CALLBACK deviceAction(CMyD3DApplication * application, int iDevice, DWORD dwAction, DWORD dwData);	
 
 	virtual HRESULT Create( HINSTANCE hInstance );
     CMyD3DApplication();

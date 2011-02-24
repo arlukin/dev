@@ -10,6 +10,7 @@
 
 const TCHAR *ACTION_NAMES[] =
 {
+	// Player 1
     TEXT("Drive forward/backward"),
     TEXT("Drive forward"),
     TEXT("Drive backward"),
@@ -20,11 +21,27 @@ const TCHAR *ACTION_NAMES[] =
 
     TEXT("Fire"),	
     TEXT("Weapons"),
+
+	// Player 2
+    TEXT("Drive forward/backward"),
+    TEXT("Drive forward"),
+    TEXT("Drive backward"),
+
+    TEXT("Steer left/right"),
+    TEXT("Steer left"),
+    TEXT("Steer right"),
+
+    TEXT("Fire"),	
+    TEXT("Weapons"),
+
+	// System
 	TEXT("Quit")
 };
 
+/* C:\Program Files\Common Files\DirectX\DirectInput\User Maps\*/
 
-DIACTION g_adiaActionMap[NUM_OF_ACTIONS] =
+const int NUM_OF_ACTIONS_ON_MAP  = 21;	  // Number of game action constants
+DIACTION g_adiaActionMap[NUM_OF_ACTIONS_ON_MAP] =
 {
     // Device input (joystick, etc.) that is pre-defined by DInput according
     // to genre type. The genre for this app is Action->DIVIRTUAL_DRIVING_TANK 
@@ -49,7 +66,21 @@ DIACTION g_adiaActionMap[NUM_OF_ACTIONS] =
     { PLAYER1_DRIVE,            DIMOUSE_YAXIS,                0,  ACTION_NAMES[PLAYER1_DRIVE], },
 	{ PLAYER1_STEER,            DIMOUSE_XAXIS,                0,  ACTION_NAMES[PLAYER1_STEER], },
     { PLAYER1_FIRE,				DIMOUSE_BUTTON0,              0,  ACTION_NAMES[PLAYER1_FIRE], },
-    { PLAYER1_WEAPONS,          DIMOUSE_BUTTON1,              0,  ACTION_NAMES[PLAYER1_WEAPONS], }
+    { PLAYER1_WEAPONS,          DIMOUSE_BUTTON1,              0,  ACTION_NAMES[PLAYER1_WEAPONS], },
+
+
+	//
+	// Player 2
+	//
+
+    // Keyboard input mappings
+    { PLAYER2_DRIVE_FORWARD,    DIKEYBOARD_NUMPAD8,		0,  ACTION_NAMES[PLAYER2_DRIVE_FORWARD], },
+    { PLAYER2_DRIVE_BACKWARD,   DIKEYBOARD_NUMPAD5,		0,  ACTION_NAMES[PLAYER2_DRIVE_BACKWARD], },
+    { PLAYER2_STEER_LEFT,       DIKEYBOARD_NUMPAD4,		0,  ACTION_NAMES[PLAYER2_STEER_LEFT], },
+    { PLAYER2_STEER_RIGHT,      DIKEYBOARD_NUMPAD6,		0,  ACTION_NAMES[PLAYER2_STEER_RIGHT], },
+    { PLAYER2_FIRE,				DIKEYBOARD_SUBTRACT,    0,  ACTION_NAMES[PLAYER2_FIRE], },
+    { PLAYER2_WEAPONS,          DIKEYBOARD_ADD,			0,  ACTION_NAMES[PLAYER2_WEAPONS], }
+
 };
 
 //-----------------------------------------------------------------------------
@@ -206,8 +237,8 @@ HRESULT ccSettings::InitDirectInput()
     ZeroMemory( &m_diaf, sizeof(DIACTIONFORMAT) );
     m_diaf.dwSize          = sizeof(DIACTIONFORMAT);
     m_diaf.dwActionSize    = sizeof(DIACTION);
-    m_diaf.dwDataSize      = NUM_OF_ACTIONS * sizeof(DWORD);
-	m_diaf.dwNumActions    = NUM_OF_ACTIONS;
+    m_diaf.dwDataSize      = NUM_OF_ACTIONS_ON_MAP * sizeof(DWORD);
+	m_diaf.dwNumActions    = NUM_OF_ACTIONS_ON_MAP;
     m_diaf.guidActionMap   = g_guidApp;
     m_diaf.dwGenre         = DIVIRTUAL_DRIVING_TANK ;     
     m_diaf.rgoAction       = g_adiaActionMap;

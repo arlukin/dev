@@ -11,20 +11,42 @@
 
 class ccUnit  
 {
-    LPDIRECT3DDEVICE9       m_pd3dDevice; // A D3DDevice used for rendering
-	POINT m_position;
-
-	//fix: SKA det vara pekare till pekra???? LP DU VET
+	// A D3DDevice used for rendering
+    LPDIRECT3DDEVICE9 m_pd3dDevice; 
+	
+	// Unit Image 
 	IDirect3DSurface9 	*m_pUnitImage;
-	D3DSURFACE_DESC m_d3dsDesc;
+	D3DXIMAGE_INFO m_srcInfo;
 
-public:
+	// Positions
+	POINT m_position;		// Units left upper corner Pixel position on tilemap.
+	RECT m_writeArea;		// Position of allowed area on screen.
+
+	POINT m_mapWorldPosition; // Top left corner of screen on the worldmap.
+	SIZE  m_mapWorldSize;	  // Size of the world map;
+
+	// Unit properties
+	SIZE  m_unitSize;
+	short m_speed;
+	short max_speed;
+
+public:		
+	void setMapWorldPosition(POINT *position) {m_mapWorldPosition = *position;};
+	void setMapWorldSize(SIZE *size) {m_mapWorldSize = *size;};
+	void setWriteArea(RECT const * const writeArea) {m_writeArea = *writeArea;};
+	
+	SIZE * getUnitSize() {return &m_unitSize;};
+
+
+
+
 	HRESULT loadUnit();
+
+
 	void validatePosition();
 	void setPosition(int x, int y);
 	void movePosition(int x, int y);
-	POINT getPosition();
-
+	POINT * getWorldPosition();
 
 	HRESULT drawUnit();
     

@@ -49,11 +49,18 @@ CMyD3DApplication::CMyD3DApplication()
     m_strWindowTitle            = TEXT( "TotalFirepower" );
     m_d3dEnumeration.AppUsesDepthBuffer           = FALSE;
 
+	m_player1WriteArea.left = m_player1WriteArea.top = 0;
+	m_player1WriteArea.right = m_player1WriteArea.bottom = 0;
+
+	m_player2WriteArea.left = m_player2WriteArea.top = 0;
+	m_player2WriteArea.right = m_player2WriteArea.bottom = 0;
+
     m_pFont                     = new CD3DFont( _T("Arial"), 12, D3DFONT_BOLD );
     m_pFontSmall                = new CD3DFont( _T("Arial"), 9, D3DFONT_BOLD );
 	m_pTileMap					= new ccTileMap;
-	m_pPlayer					= new ccPlayer;
-
+	m_pPlayer1					= new ccPlayer;
+	m_pPlayer2					= new ccPlayer;
+	
 	m_bCapture = FALSE;
 
     m_dwCreationWidth   = 800;
@@ -99,7 +106,10 @@ HRESULT CMyD3DApplication::InitDeviceObjects()
     if( FAILED(hr = m_pTileMap->InitDeviceObjects(m_pd3dDevice)))
         return hr;	
 
-	if(FAILED(hr = m_pPlayer->getUnit()->InitDeviceObjects(m_pd3dDevice)))
+	if(FAILED(hr = m_pPlayer1->getUnit()->InitDeviceObjects(m_pd3dDevice)))
+		return hr;
+
+	if(FAILED(hr = m_pPlayer2->getUnit()->InitDeviceObjects(m_pd3dDevice)))
 		return hr;
 
     return S_OK;
@@ -147,10 +157,37 @@ HRESULT CMyD3DApplication::RestoreDeviceObjects()
 		return hr;
 
 	if (FAILED(hr = m_pTileMap->RestoreDeviceObjects()))
+		return hr;	
+
+	// Player 1
+	m_player1WriteArea.left = 32;
+	m_player1WriteArea.top = 32;
+	m_player1WriteArea.right = (((m_d3dsdBackBuffer.Width/2)-16)/32);
+	m_player1WriteArea.right *= 32;
+	m_player1WriteArea.bottom = ((m_d3dsdBackBuffer.Height-32)/32)*32;
+	
+	m_pTileMap->setWriteArea(&m_player1WriteArea);
+
+	if (FAILED(hr = m_pPlayer1->getUnit()->RestoreDeviceObjects()))
+		return hr;
+	m_pPlayer1->getUnit()->setWriteArea(&m_player1WriteArea);
+	m_pPlayer1->getUnit()->setMapWorldSize(m_pTileMap->getWorldSize());
+
+
+	// Player 2
+	m_player2WriteArea.left = (((m_d3dsdBackBuffer.Width/2)+16)/32);
+	m_player2WriteArea.left *= 32;
+	m_player2WriteArea.top = 32;
+	m_player2WriteArea.right = m_d3dsdBackBuffer.Width-32;
+	m_player2WriteArea.bottom = ((m_d3dsdBackBuffer.Height-32)/32)*32;
+
+	m_pTileMap->setWriteArea(&m_player2WriteArea);
+
+	if (FAILED(hr = m_pPlayer2->getUnit()->RestoreDeviceObjects()))
 		return hr;
 
-	if (FAILED(hr = m_pPlayer->getUnit()->RestoreDeviceObjects()))
-		return hr;
+	m_pPlayer2->getUnit()->setWriteArea(&m_player2WriteArea);
+	m_pPlayer2->getUnit()->setMapWorldSize(m_pTileMap->getWorldSize());
 
     return S_OK;
 }
@@ -169,18 +206,48 @@ HRESULT CMyD3DApplication::Render()
     // Begin the scene
     if( SUCCEEDED( m_pd3dDevice->BeginScene() ) )
     {
-        // Draw map;
-		RECT writeArea = {32, 32, m_d3dsdBackBuffer.Width-32, m_d3dsdBackBuffer.Height-32};
-		
-		
-		POINT centerPoint = m_pPlayer->getUnit()->getPosition();						
-		m_pTileMap->DrawMap(&writeArea, &centerPoint);
+		POINT *centerPoint;
+		SIZE *unitSize;
 
-		m_pPlayer->getUnit()->drawUnit();
+		//
+		// Draw Player 1 screen.
+		//
+
+        // Draw map;
+
+		m_pTileMap->setWriteArea(&m_player1WriteArea);
+		centerPoint = m_pPlayer1->getUnit()->getWorldPosition();		
+		unitSize = m_pPlayer1->getUnit()->getUnitSize();		
+		m_pTileMap->centerAround(centerPoint, unitSize);
+		m_pTileMap->DrawMap();
+
+		// Draw units
+		
+		m_pPlayer1->getUnit()->setMapWorldPosition(m_pTileMap->getWorldPosition());
+		m_pPlayer1->getUnit()->drawUnit();
+
+		//
+		// Draw Player 2 screen.
+		//
+
+        // Draw map;
+
+		m_pTileMap->setWriteArea(&m_player2WriteArea);
+		centerPoint = m_pPlayer2->getUnit()->getWorldPosition();		
+		unitSize = m_pPlayer2->getUnit()->getUnitSize();		
+		m_pTileMap->centerAround(centerPoint, unitSize);
+		m_pTileMap->DrawMap();
+
+		m_pPlayer1->getUnit()->setWriteArea(&m_player2WriteArea);
+		m_pPlayer1->getUnit()->setMapWorldPosition(m_pTileMap->getWorldPosition());
+		m_pPlayer1->getUnit()->drawUnit();
+		m_pPlayer1->getUnit()->setWriteArea(&m_player1WriteArea);
+
+		m_pPlayer2->getUnit()->setMapWorldPosition(m_pTileMap->getWorldPosition());
+		m_pPlayer2->getUnit()->drawUnit();
 
 		// Output statistics
-        m_pFont->DrawText( 2,  0, D3DCOLOR_ARGB(255,255,255,0), m_strFrameStats );
-        m_pFont->DrawText( 2, 20, D3DCOLOR_ARGB(255,255,255,0), m_strDeviceStats );
+		drawStatistics();
 
         // End the scene.
         m_pd3dDevice->EndScene();
@@ -205,7 +272,8 @@ HRESULT CMyD3DApplication::InvalidateDeviceObjects()
     m_pFontSmall->InvalidateDeviceObjects();
 
 	m_pTileMap->InvalidateDeviceObjects();
-	m_pPlayer->getUnit()->InvalidateDeviceObjects();
+	m_pPlayer1->getUnit()->InvalidateDeviceObjects();
+	m_pPlayer2->getUnit()->InvalidateDeviceObjects();
 
     return S_OK;
 }
@@ -224,7 +292,8 @@ HRESULT CMyD3DApplication::DeleteDeviceObjects()
     m_pFontSmall->DeleteDeviceObjects();
 
 	m_pTileMap->DeleteDeviceObjects();
-	m_pPlayer->getUnit()->DeleteDeviceObjects();
+	m_pPlayer1->getUnit()->DeleteDeviceObjects();
+	m_pPlayer2->getUnit()->DeleteDeviceObjects();
 
     return S_OK;
 }
@@ -244,7 +313,8 @@ HRESULT CMyD3DApplication::FinalCleanup()
     SAFE_DELETE( m_pFontSmall );
 
 	SAFE_DELETE(m_pTileMap);
-	SAFE_DELETE(m_pPlayer);
+	SAFE_DELETE(m_pPlayer1);
+	SAFE_DELETE(m_pPlayer2);
 
     return S_OK;
 }
@@ -267,23 +337,10 @@ LRESULT CMyD3DApplication::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 		}
 		break;
 
+		case WM_COMMAND:
+			break;
+	}
 
-
-    case WM_COMMAND:
-		break;
-	/*case WM_KEYDOWN:
-			
-        if ( LOWORD(wParam) == m_settings.m_keyUp)
-			m_pPlayer->getUnit()->movePosition(0,-1);
-		else if ( LOWORD(wParam) == m_settings.m_keyDown)
-			m_pPlayer->getUnit()->movePosition(0,1);
-		else if ( LOWORD(wParam) == m_settings.m_keyLeft)
-			m_pPlayer->getUnit()->movePosition(-1,0);
-		else if ( LOWORD(wParam) == m_settings.m_keyRight)
-			m_pPlayer->getUnit()->movePosition(1,0);		        
-        break;
-	*/
-    }
 
     // Capture mouse when clicked
     if( WM_LBUTTONDOWN == uMsg )
@@ -317,11 +374,11 @@ LRESULT CMyD3DApplication::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam,
  //Ingen callback funktion.. en funktion som kollar om vissa 
 
 
-HRESULT CALLBACK CMyD3DApplication::deviceAction(CMyD3DApplication * application, int iDevice, DWORD dwAction, DWORD dwData)
+/*HRESULT CALLBACK CMyD3DApplication::deviceAction(CMyD3DApplication * application, int iDevice, DWORD dwAction, DWORD dwData)
 {
-
 	return S_OK;
 }
+*/
 
 //-----------------------------------------------------------------------------
 // Name: FrameMove()
@@ -359,33 +416,67 @@ HRESULT CMyD3DApplication::checkInput()
 		{
 			dwData = m_settings->m_aDevices[iDevice].dwInput[dwAction];
 			if (dwData > 0)
-			{
-				int speed = 10;
+			{				
 				switch (dwAction)
-				{					
+				{
+					//
+					// Player 1
+					//
 					case PLAYER1_DRIVE:
-						m_pPlayer->getUnit()->movePosition(0, dwData);
+						m_pPlayer1->getUnit()->movePosition(0, dwData);
 					break;
 
 					case PLAYER1_STEER:
-						m_pPlayer->getUnit()->movePosition(dwData, 0);
+						m_pPlayer1->getUnit()->movePosition(dwData, 0);
 					break;
 
 					case PLAYER1_DRIVE_FORWARD:
-						m_pPlayer->getUnit()->movePosition(0, -speed);
+						m_pPlayer1->getUnit()->movePosition(0, -1);
 					break;
 
 					case PLAYER1_DRIVE_BACKWARD:
-						m_pPlayer->getUnit()->movePosition(0, speed);
+						m_pPlayer1->getUnit()->movePosition(0, 1);
 					break;
 
 					case PLAYER1_STEER_LEFT:
-						m_pPlayer->getUnit()->movePosition(-speed, 0);
+						m_pPlayer1->getUnit()->movePosition(-1, 0);
 					break;
 
 					case PLAYER1_STEER_RIGHT:
-						m_pPlayer->getUnit()->movePosition(speed, 0);
+						m_pPlayer1->getUnit()->movePosition(1, 0);
 					break;
+
+					//
+					// Player 2
+					//
+
+					case PLAYER2_DRIVE:
+						m_pPlayer2->getUnit()->movePosition(0, dwData);
+					break;
+
+					case PLAYER2_STEER:
+						m_pPlayer2->getUnit()->movePosition(dwData, 0);
+					break;
+
+					case PLAYER2_DRIVE_FORWARD:
+						m_pPlayer2->getUnit()->movePosition(0, -1);
+					break;
+
+					case PLAYER2_DRIVE_BACKWARD:
+						m_pPlayer2->getUnit()->movePosition(0, 1);
+					break;
+
+					case PLAYER2_STEER_LEFT:
+						m_pPlayer2->getUnit()->movePosition(-1, 0);
+					break;
+
+					case PLAYER2_STEER_RIGHT:
+						m_pPlayer2->getUnit()->movePosition(1, 0);
+					break;
+
+					//
+					// System
+					//
 
 					case QUIT:
 						//PostQuitMessage(0);
@@ -403,4 +494,79 @@ HRESULT CMyD3DApplication::checkInput()
 HWND CMyD3DApplication::getWindow()
 {
 	return m_hWnd;
+}
+
+void CMyD3DApplication::drawStatistics()
+{    
+    m_pFont->DrawText( 2, 0, D3DCOLOR_ARGB(255,255,255,0), m_strDeviceStats );
+
+	
+	TCHAR buffer[512];	
+	const int cchBufferSize = sizeof(buffer) / sizeof(TCHAR);
+	buffer[0]  = _T('\0');
+
+	//
+	// Screen Data.
+	//		
+   
+    _sntprintf( buffer, cchBufferSize, 
+		_T("%s"), m_strFrameStats
+		);
+        
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+
+	m_pFont->DrawText( 2, 20, D3DCOLOR_ARGB(255,255,255,0), buffer );
+
+	//
+	// Draw worldmap coord.	
+	//
+	POINT *worldPosition = m_pTileMap->getWorldPosition();
+	SIZE  *worldSize = m_pTileMap->getWorldSize();
+    
+    _sntprintf( buffer, cchBufferSize, 
+		_T("World position: (%d, %d) World size:(%dx%d)"),
+		worldPosition->x, worldPosition->y,
+		worldSize->cx, worldSize->cy
+		);
+        
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+
+	m_pFont->DrawText( 2, 40, D3DCOLOR_ARGB(255,255,255,0), buffer );
+	
+	//
+	// Draw Player 1 unit coord.
+	//	
+	worldPosition = m_pPlayer1->getUnit()->getWorldPosition();
+	SIZE * unitSize = m_pPlayer1->getUnit()->getUnitSize();
+    
+    _sntprintf( buffer, cchBufferSize, 
+		_T("Unit position: (%d, %d) Unit size (%d, %d), writeArea: (%d, %d - %d, %d)"),
+		worldPosition->x, worldPosition->y,
+		unitSize->cx, unitSize->cy,		
+		m_player1WriteArea.left, m_player1WriteArea.top,
+		m_player1WriteArea.right-m_player1WriteArea.left, m_player1WriteArea.bottom - m_player1WriteArea.top		
+		);
+        
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+
+	m_pFont->DrawText( 2, 60, D3DCOLOR_ARGB(255,255,255,0), buffer );
+
+	//
+	// Draw Player 2 unit coord.
+	//
+	worldPosition = m_pPlayer2->getUnit()->getWorldPosition();
+	unitSize = m_pPlayer2->getUnit()->getUnitSize();
+    
+    _sntprintf( buffer, cchBufferSize, 
+		_T("Unit position: (%d, %d) Unit size (%d, %d), writeArea: (%d, %d - %d, %d)"),
+		worldPosition->x, worldPosition->y,
+		unitSize->cx, unitSize->cy,		
+		m_player2WriteArea.left, m_player2WriteArea.top,
+		m_player2WriteArea.right-m_player2WriteArea.left, m_player2WriteArea.bottom - m_player2WriteArea.top		
+		);
+        
+	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
+
+	m_pFont->DrawText( 2, 60, D3DCOLOR_ARGB(255,255,255,0), buffer );
+
 }

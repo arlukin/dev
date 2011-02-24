@@ -30,5 +30,7 @@
 #include "D3DUtil.h"
 #include "../resource.h"
 
+#include "ccDebug.h"
+
 extern PALETTEENTRY taPalette[256];
 #endif

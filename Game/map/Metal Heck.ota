@@ -13,20 +13,22 @@
 	solarstrength=20;
 	lavaworld=0;
 	killmul=50;
-	timemul=0;
+	timemul=;
 	minwindspeed=0;
 	maxwindspeed=3000;
 	gravity=112;
+	waterdoesdamage=;
+	waterdamage=;
 	numplayers=2, 3, 4, 5, 7, 8;
 	size=9 x 9;
 	memory=16 mb;
 	useonlyunits=Metal Heck.tdf;
 	DestroyAllUnits=1;
 	AllUnitsKilled=1;
-	SCHEMACOUNT=4;
+	SCHEMACOUNT=1;
 	[Schema 0]
 		{
-		Type=Network 1;
+		Type=Network 4;
 		aiprofile=DEFAULT;
 		SurfaceMetal=255;
 		MohoMetal=255;
@@ -44,44 +46,44 @@
 			[special0]
 				{
 				specialwhat=StartPos1;
-				XPos=1264;
-				ZPos=272;
+				XPos=1904;
+				ZPos=560;
 				}
 			[special1]
 				{
 				specialwhat=StartPos2;
-				XPos=2944;
-				ZPos=3840;
+				XPos=3008;
+				ZPos=3120;
 				}
 			[special2]
 				{
 				specialwhat=StartPos3;
-				XPos=464;
-				ZPos=2864;
+				XPos=944;
+				ZPos=1024;
 				}
 			[special3]
 				{
 				specialwhat=StartPos4;
-				XPos=3824;
-				ZPos=1520;
+				XPos=3808;
+				ZPos=2128;
 				}
 			[special4]
 				{
 				specialwhat=StartPos5;
-				XPos=3072;
-				ZPos=400;
+				XPos=336;
+				ZPos=2704;
 				}
 			[special5]
 				{
 				specialwhat=StartPos6;
-				XPos=1168;
-				ZPos=3840;
+				XPos=3056;
+				ZPos=816;
 				}
 			[special6]
 				{
 				specialwhat=StartPos7;
-				XPos=304;
-				ZPos=1504;
+				XPos=1728;
+				ZPos=3840;
 				}
 			[special7]
 				{
@@ -100,153 +102,6 @@
 				specialwhat=StartPos10;
 				XPos=2544;
 				ZPos=2416;
-				}
-			}
-		}
-	[Schema 1]
-		{
-		Type=Network 2;
-		aiprofile=;
-		SurfaceMetal=255;
-		MohoMetal=255;
-		HumanMetal=1000;
-		ComputerMetal=1000;
-		HumanEnergy=1000;
-		ComputerEnergy=1000;
-		MeteorWeapon=;
-		MeteorRadius=0;
-		MeteorDensity=0;
-		MeteorDuration=0;
-		MeteorInterval=0;
-		[specials]
-			{
-			[special0]
-				{
-				specialwhat=StartPos1;
-				XPos=3520;
-				ZPos=1664;
-				}
-			[special1]
-				{
-				specialwhat=StartPos2;
-				XPos=1472;
-				ZPos=3984;
-				}
-			[special2]
-				{
-				specialwhat=StartPos3;
-				XPos=656;
-				ZPos=960;
-				}
-			}
-		}
-	[Schema 2]
-		{
-		Type=Network 3;
-		aiprofile=;
-		SurfaceMetal=255;
-		MohoMetal=255;
-		HumanMetal=1000;
-		ComputerMetal=1000;
-		HumanEnergy=1000;
-		ComputerEnergy=1000;
-		MeteorWeapon=;
-		MeteorRadius=0;
-		MeteorDensity=0;
-		MeteorDuration=0;
-		MeteorInterval=0;
-		[specials]
-			{
-			[special0]
-				{
-				specialwhat=StartPos1;
-				XPos=2048;
-				ZPos=480;
-				}
-			[special1]
-				{
-				specialwhat=StartPos2;
-				XPos=3008;
-				ZPos=3056;
-				}
-			[special2]
-				{
-				specialwhat=StartPos3;
-				XPos=272;
-				ZPos=1472;
-				}
-			[special3]
-				{
-				specialwhat=StartPos4;
-				XPos=3792;
-				ZPos=1120;
-				}
-			[special4]
-				{
-				specialwhat=StartPos5;
-				XPos=880;
-				ZPos=3040;
-				}
-			}
-		}
-	[Schema 3]
-		{
-		Type=Network 4;
-		aiprofile=;
-		SurfaceMetal=255;
-		MohoMetal=255;
-		HumanMetal=1000;
-		ComputerMetal=1000;
-		HumanEnergy=1000;
-		ComputerEnergy=1000;
-		MeteorWeapon=;
-		MeteorRadius=0;
-		MeteorDensity=0;
-		MeteorDuration=0;
-		MeteorInterval=0;
-		[specials]
-			{
-			[special0]
-				{
-				specialwhat=StartPos5;
-				XPos=336;
-				ZPos=2704;
-				}
-			[special1]
-				{
-				specialwhat=StartPos3;
-				XPos=944;
-				ZPos=1024;
-				}
-			[special2]
-				{
-				specialwhat=StartPos4;
-				XPos=3808;
-				ZPos=2128;
-				}
-			[special3]
-				{
-				specialwhat=StartPos6;
-				XPos=3056;
-				ZPos=816;
-				}
-			[special4]
-				{
-				specialwhat=StartPos1;
-				XPos=1904;
-				ZPos=560;
-				}
-			[special5]
-				{
-				specialwhat=StartPos2;
-				XPos=3008;
-				ZPos=3120;
-				}
-			[special6]
-				{
-				specialwhat=StartPos7;
-				XPos=1728;
-				ZPos=3840;
 				}
 			}
 		}

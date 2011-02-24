@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+
 #include "ccUnit.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -13,6 +14,13 @@ ccUnit::ccUnit()
 {
 	m_position.x = 0;
 	m_position.y = 0;
+	m_mapWorldPosition.x = m_mapWorldPosition.y = 0;
+	m_mapWorldSize.cx = m_mapWorldSize.cy = 0;
+
+	m_unitSize.cx = m_unitSize.cy = 0;
+
+	m_speed = 1;
+	max_speed = 10;
 }
 
 ccUnit::~ccUnit()
@@ -22,15 +30,15 @@ ccUnit::~ccUnit()
 
 //
 
-POINT ccUnit::getPosition()
+POINT * ccUnit::getWorldPosition()
 {
-	return m_position;
+	return &m_position;
 }
 
 void ccUnit::movePosition(int x, int y)
 {
-	m_position.x += x;
-	m_position.y += y;
+	m_position.x += x*m_speed;
+	m_position.y += y*m_speed;
 	validatePosition();
 }
 
@@ -43,11 +51,15 @@ void ccUnit::setPosition(int x, int y)
 
 void ccUnit::validatePosition()
 {
-	if (m_position.x <0)
+	if (m_position.x < 0)
 		m_position.x = 0;
+	else if (m_position.x > (m_mapWorldSize.cx-(long)m_srcInfo.Width))
+		m_position.x = (m_mapWorldSize.cx-(long)m_srcInfo.Width);
 
 	if (m_position.y < 0)
 		m_position.y = 0;
+	else if (m_position.y > (m_mapWorldSize.cy-(long)m_srcInfo.Height))
+		m_position.y = (m_mapWorldSize.cy-(long)m_srcInfo.Height);
 }
 
 //
@@ -85,7 +97,7 @@ HRESULT ccUnit::RestoreDeviceObjects()
 //-----------------------------------------------------------------------------
 HRESULT ccUnit::InvalidateDeviceObjects()
 {	
-	SAFE_DELETE(m_pUnitImage);
+	SAFE_RELEASE(m_pUnitImage);
 
     return S_OK;
 }
@@ -112,8 +124,10 @@ HRESULT ccUnit::drawUnit()
 	if (SUCCEEDED(hr = m_pd3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &ppBackBuffer)))
 	{	
 		RECT destRect;
-		destRect.top = 0;
-		destRect.left = 0;
+		destRect.left = m_position.x-m_mapWorldPosition.x+m_writeArea.left;
+		destRect.top = m_position.y-m_mapWorldPosition.y+m_writeArea.top;		
+		destRect.right = destRect.left+m_srcInfo.Width;
+		destRect.bottom = destRect.top+m_srcInfo.Height;
 
 		hr = m_pd3dDevice->StretchRect(m_pUnitImage, NULL, ppBackBuffer, &destRect, D3DTEXF_NONE);
 	}
@@ -132,19 +146,22 @@ HRESULT ccUnit::loadUnit()
 	HRESULT hr;
 	IDirect3DSurface9 *ppBackBuffer;
 	if (SUCCEEDED(hr = m_pd3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &ppBackBuffer)))
-	{		
-		ppBackBuffer->GetDesc(&m_d3dsDesc);		
+	{
+		D3DSURFACE_DESC d3dsDesc;
+		ppBackBuffer->GetDesc(&d3dsDesc);		
 				
 		char fileName[] = "..//units//armbulldog.bmp";
-
-		D3DXIMAGE_INFO srcInfo;
+		
 		if (FAILED(hr = D3DXGetImageInfoFromFile(
 			fileName,
-			&srcInfo)))
+			&m_srcInfo)))
 			return hr;
+
+		m_unitSize.cx = m_srcInfo.Width;
+		m_unitSize.cy = m_srcInfo.Height;
 				
 		if (FAILED(hr = m_pd3dDevice->CreateOffscreenPlainSurface(
-			srcInfo.Width, srcInfo.Height, m_d3dsDesc.Format, D3DPOOL_DEFAULT, &m_pUnitImage, NULL)))    	
+			m_srcInfo.Width, m_srcInfo.Height, d3dsDesc.Format, D3DPOOL_DEFAULT, &m_pUnitImage, NULL)))    	
 			return hr;				
 
 		if (FAILED(hr = D3DXLoadSurfaceFromFile(          
@@ -155,7 +172,7 @@ HRESULT ccUnit::loadUnit()
 			NULL,
 			D3DX_FILTER_NONE,
 			NULL,
-			&m_d3dsDesc
+			&m_srcInfo
 		)))
 			return hr;
 	}
