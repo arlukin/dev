@@ -44,35 +44,71 @@ HRESULT CMyD3DApplication::Create(HINSTANCE hInstance)
 // Name: CMyD3DApplication()
 // Desc: Application constructor. Sets attributes for the app.
 //-----------------------------------------------------------------------------
-CMyD3DApplication::CMyD3DApplication()
+CMyD3DApplication::CMyD3DApplication() 
+: m_units(AL_REFERENCE)
 {
+	// GFX Modes
     m_strWindowTitle            = TEXT( "TotalFirepower" );
     m_d3dEnumeration.AppUsesDepthBuffer           = FALSE;
-
-	m_player1WriteArea.left = m_player1WriteArea.top = 0;
-	m_player1WriteArea.right = m_player1WriteArea.bottom = 0;
-
-	m_player2WriteArea.left = m_player2WriteArea.top = 0;
-	m_player2WriteArea.right = m_player2WriteArea.bottom = 0;
-
     m_pFont                     = new CD3DFont( _T("Arial"), 12, D3DFONT_BOLD );
     m_pFontSmall                = new CD3DFont( _T("Arial"), 9, D3DFONT_BOLD );
-	m_pTileMap					= new ccTileMap;
-	m_pPlayer1					= new ccPlayer;
-	m_pPlayer2					= new ccPlayer;
-	
+
 	m_bCapture = FALSE;
 
     m_dwCreationWidth   = 800;
     m_dwCreationHeight  = 600;
 	//m_bStartFullscreen = TRUE;
-
+	
+	//	
 	m_settings = new ccSettings(this);
+	
+	m_pTileMap = new ccTileMap;
+	
+	//
+	m_pPlayer1 = new ccPlayer();	
+	m_pPlayer1->createUnit(m_pTileMap, &m_units);
+	m_units.Add(m_pPlayer1->getUnit());
+
+	//
+	m_pPlayer2 = new ccPlayer();
+	m_pPlayer2->createUnit(m_pTileMap, &m_units);
+	m_units.Add(m_pPlayer2->getUnit());
+
+	//
+	m_oneScreenWriteArea.left = m_oneScreenWriteArea.top = 0;
+	m_oneScreenWriteArea.right = m_oneScreenWriteArea.bottom = 0;
+
+	m_player1WriteArea.left = m_player1WriteArea.top = 0;
+	m_player1WriteArea.right = m_player1WriteArea.bottom = 0;
+
+	m_player2WriteArea.left = m_player2WriteArea.top = 0;
+	m_player2WriteArea.right = m_player2WriteArea.bottom = 0;	
 }
 
 CMyD3DApplication::~CMyD3DApplication()
 {
-	SAFE_DELETE(m_settings);	
+	// See FinalCleanup
+}
+
+//-----------------------------------------------------------------------------
+// Name: FinalCleanup()
+// Desc: Called before the app exits, this function gives the app the chance
+//       to cleanup after itself.
+//-----------------------------------------------------------------------------
+HRESULT CMyD3DApplication::FinalCleanup()
+{
+    // Cleanup D3D font
+    SAFE_DELETE(m_pFont);
+    SAFE_DELETE(m_pFontSmall);
+
+	SAFE_DELETE(m_settings);
+	//SAFE_DELETE(m_units);
+
+	SAFE_DELETE(m_pTileMap);
+	SAFE_DELETE(m_pPlayer1);
+	SAFE_DELETE(m_pPlayer2);
+
+    return S_OK;
 }
 
 HRESULT CMyD3DApplication::OneTimeSceneInit()
@@ -159,20 +195,21 @@ HRESULT CMyD3DApplication::RestoreDeviceObjects()
 	if (FAILED(hr = m_pTileMap->RestoreDeviceObjects()))
 		return hr;	
 
+	// oneScreen	
+	m_oneScreenWriteArea.left = 32;
+	m_oneScreenWriteArea.top = 32;
+	m_oneScreenWriteArea.right = m_d3dsdBackBuffer.Width-32;
+	m_oneScreenWriteArea.bottom = ((m_d3dsdBackBuffer.Height-32)/32)*32;
+
 	// Player 1
 	m_player1WriteArea.left = 32;
 	m_player1WriteArea.top = 32;
 	m_player1WriteArea.right = (((m_d3dsdBackBuffer.Width/2)-16)/32);
 	m_player1WriteArea.right *= 32;
 	m_player1WriteArea.bottom = ((m_d3dsdBackBuffer.Height-32)/32)*32;
-	
-	m_pTileMap->setWriteArea(&m_player1WriteArea);
 
 	if (FAILED(hr = m_pPlayer1->getUnit()->RestoreDeviceObjects()))
 		return hr;
-	m_pPlayer1->getUnit()->setWriteArea(&m_player1WriteArea);
-	m_pPlayer1->getUnit()->setMapWorldSize(m_pTileMap->getWorldSize());
-
 
 	// Player 2
 	m_player2WriteArea.left = (((m_d3dsdBackBuffer.Width/2)+16)/32);
@@ -181,13 +218,12 @@ HRESULT CMyD3DApplication::RestoreDeviceObjects()
 	m_player2WriteArea.right = m_d3dsdBackBuffer.Width-32;
 	m_player2WriteArea.bottom = ((m_d3dsdBackBuffer.Height-32)/32)*32;
 
-	m_pTileMap->setWriteArea(&m_player2WriteArea);
 
 	if (FAILED(hr = m_pPlayer2->getUnit()->RestoreDeviceObjects()))
 		return hr;
 
-	m_pPlayer2->getUnit()->setWriteArea(&m_player2WriteArea);
-	m_pPlayer2->getUnit()->setMapWorldSize(m_pTileMap->getWorldSize());
+	m_pPlayer2->getUnit()->setPosition(150,150);
+
 
     return S_OK;
 }
@@ -206,45 +242,55 @@ HRESULT CMyD3DApplication::Render()
     // Begin the scene
     if( SUCCEEDED( m_pd3dDevice->BeginScene() ) )
     {
-		POINT *centerPoint;
-		SIZE *unitSize;
+		POINT *player1WorldPos, *player2WorldPos ;
+		SIZE *player1UnitSize, *player2UnitSize;
 
-		//
-		// Draw Player 1 screen.
-		//
+		player1WorldPos = m_pPlayer1->getUnit()->getWorldPosition();		
+		player2WorldPos = m_pPlayer2->getUnit()->getWorldPosition();
 
-        // Draw map;
+		player1UnitSize = m_pPlayer1->getUnit()->getUnitSize();				
+		player2UnitSize = m_pPlayer2->getUnit()->getUnitSize();				
 
-		m_pTileMap->setWriteArea(&m_player1WriteArea);
-		centerPoint = m_pPlayer1->getUnit()->getWorldPosition();		
-		unitSize = m_pPlayer1->getUnit()->getUnitSize();		
-		m_pTileMap->centerAround(centerPoint, unitSize);
-		m_pTileMap->DrawMap();
+		// Both player fit on same screen.
+		int xDistance = abs(player1WorldPos->x-player2WorldPos->x)+player1UnitSize->cx+player2UnitSize->cx;
+		int yDistance = abs(player1WorldPos->y-player2WorldPos->y)+player1UnitSize->cy+player2UnitSize->cy;
+		if (xDistance < (m_oneScreenWriteArea.right - m_oneScreenWriteArea.left) && 
+			yDistance < (m_oneScreenWriteArea.bottom - m_oneScreenWriteArea.top)
+		   )
+		{
+			POINT oneScreenWorldPos;
+			oneScreenWorldPos.x = ((player1WorldPos->x + player2WorldPos->x)/2) + ((player1UnitSize->cx +player1UnitSize->cx) /4);
+			oneScreenWorldPos.y = (player1WorldPos->y + player2WorldPos->y)/2  + ((player1UnitSize->cy +player1UnitSize->cy) /4);;
 
-		// Draw units
-		
-		m_pPlayer1->getUnit()->setMapWorldPosition(m_pTileMap->getWorldPosition());
-		m_pPlayer1->getUnit()->drawUnit();
+			SIZE noSize;
+			noSize.cx = (player1UnitSize->cx + player2UnitSize->cx);
+			noSize.cy = (player1UnitSize->cy + player2UnitSize->cy);
 
-		//
-		// Draw Player 2 screen.
-		//
+			m_pTileMap->setWriteArea(&m_oneScreenWriteArea);							
+			m_pTileMap->centerAround(&oneScreenWorldPos, &noSize);
+			m_pTileMap->DrawMap();
+			drawUnits();
 
-        // Draw map;
+		}
+		else
+		{								
+			
+			//
+			// Draw Player 1 screen.
+			//        
+			m_pTileMap->setWriteArea(&m_player1WriteArea);							
+			m_pTileMap->centerAround(player1WorldPos, player1UnitSize);
+			m_pTileMap->DrawMap();
+			drawUnits();
 
-		m_pTileMap->setWriteArea(&m_player2WriteArea);
-		centerPoint = m_pPlayer2->getUnit()->getWorldPosition();		
-		unitSize = m_pPlayer2->getUnit()->getUnitSize();		
-		m_pTileMap->centerAround(centerPoint, unitSize);
-		m_pTileMap->DrawMap();
-
-		m_pPlayer1->getUnit()->setWriteArea(&m_player2WriteArea);
-		m_pPlayer1->getUnit()->setMapWorldPosition(m_pTileMap->getWorldPosition());
-		m_pPlayer1->getUnit()->drawUnit();
-		m_pPlayer1->getUnit()->setWriteArea(&m_player1WriteArea);
-
-		m_pPlayer2->getUnit()->setMapWorldPosition(m_pTileMap->getWorldPosition());
-		m_pPlayer2->getUnit()->drawUnit();
+			//
+			// Draw Player 2 screen.
+			//
+			m_pTileMap->setWriteArea(&m_player2WriteArea);					
+			m_pTileMap->centerAround(player2WorldPos, player2UnitSize);
+			m_pTileMap->DrawMap();
+			drawUnits();
+		}
 
 		// Output statistics
 		drawStatistics();
@@ -263,11 +309,6 @@ HRESULT CMyD3DApplication::Render()
 //-----------------------------------------------------------------------------
 HRESULT CMyD3DApplication::InvalidateDeviceObjects()
 {
-	/*
-    SAFE_RELEASE( m_pWallMesh );
-	SAFE_RELEASE( m_pSphereMesh );
-    SAFE_RELEASE( m_pConeMesh );
-	*/
     m_pFont->InvalidateDeviceObjects();
     m_pFontSmall->InvalidateDeviceObjects();
 
@@ -299,29 +340,6 @@ HRESULT CMyD3DApplication::DeleteDeviceObjects()
 }
 
 
-
-
-//-----------------------------------------------------------------------------
-// Name: FinalCleanup()
-// Desc: Called before the app exits, this function gives the app the chance
-//       to cleanup after itself.
-//-----------------------------------------------------------------------------
-HRESULT CMyD3DApplication::FinalCleanup()
-{
-    // Cleanup D3D font
-    SAFE_DELETE( m_pFont );
-    SAFE_DELETE( m_pFontSmall );
-
-	SAFE_DELETE(m_pTileMap);
-	SAFE_DELETE(m_pPlayer1);
-	SAFE_DELETE(m_pPlayer2);
-
-    return S_OK;
-}
-
-
-
-
 //-----------------------------------------------------------------------------
 // Name: MsgProc()
 // Desc: Message proc function
@@ -340,7 +358,6 @@ LRESULT CMyD3DApplication::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 		case WM_COMMAND:
 			break;
 	}
-
 
     // Capture mouse when clicked
     if( WM_LBUTTONDOWN == uMsg )
@@ -370,15 +387,6 @@ LRESULT CMyD3DApplication::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
     return CD3DApplication::MsgProc( hWnd, uMsg, wParam, lParam );
 }
-
- //Ingen callback funktion.. en funktion som kollar om vissa 
-
-
-/*HRESULT CALLBACK CMyD3DApplication::deviceAction(CMyD3DApplication * application, int iDevice, DWORD dwAction, DWORD dwData)
-{
-	return S_OK;
-}
-*/
 
 //-----------------------------------------------------------------------------
 // Name: FrameMove()
@@ -567,6 +575,16 @@ void CMyD3DApplication::drawStatistics()
         
 	m_strFrameStats[cchBufferSize - 1] = TEXT('\0');
 
-	m_pFont->DrawText( 2, 60, D3DCOLOR_ARGB(255,255,255,0), buffer );
+	m_pFont->DrawText( 2, 80, D3DCOLOR_ARGB(255,255,255,0), buffer );
 
+}
+
+HRESULT CMyD3DApplication::drawUnits()
+{
+	for(int i=0;i<m_units.count();i++)
+	{
+		((ccUnit*)m_units[i])->drawUnit();
+	}
+
+	return S_OK;
 }

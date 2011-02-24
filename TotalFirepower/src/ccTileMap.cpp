@@ -130,7 +130,8 @@ HRESULT ccTileMap::DrawMap()
 
 				if (tileToWrite<m_header.Tiles)
 				{				
- 					if (FAILED(hr = m_pd3dDevice->StretchRect(m_pTileSurface[tileToWrite], &srcRect, ppBackBuffer, &destRect, D3DTEXF_NONE)))
+
+					if (FAILED(hr = m_pd3dDevice->StretchRect(m_pTileSurface[tileToWrite], &srcRect, ppBackBuffer, &destRect, D3DTEXF_NONE)))
 					{
 						break;
 					}
@@ -167,6 +168,7 @@ HRESULT ccTileMap::loadTNT()
 	//if( (stream  = fopen( "..//map//The Pass.tnt", "rb" )) == NULL)
 	//if( (stream  = fopen( "..//map//Metal Heck.tnt", "rb" )) == NULL)
 	if( (stream  = fopen( "..//map//test.tnt", "rb" )) == NULL)
+	//if( (stream  = fopen( "..//map//King of the Hill.tnt", "rb" )) == NULL)		
 	{
 		printf( "The file 'data' was not opened\n" );
 		return E_FAIL;
@@ -275,11 +277,8 @@ HRESULT ccTileMap::loadTileData(FILE *stream)
 void ccTileMap::setWriteArea(const RECT *const writeArea)
 {	
 	// Funkar inte riktigt, måste
-	if ((writeArea->right-writeArea->left)%m_tileWidth)
-		ASSERT("Writearea width must be divided by two");
-
-	if ((writeArea->bottom-writeArea->top)%m_tileHeight)
-		ASSERT("Writearea height must be divided by two");
+	ASSERTMSG((writeArea->right-writeArea->left)%m_tileWidth, "Writearea width must be divided by two");	
+	ASSERTMSG((writeArea->bottom-writeArea->top)%m_tileHeight, "Writearea height must be divided by two");
 
 	m_writeArea = *writeArea;
 }
@@ -372,4 +371,57 @@ POINT * ccTileMap::getWorldPosition()
 SIZE * ccTileMap::getWorldSize()
 {
 	return &m_worldSize;
+}
+
+HRESULT ccTileMap::worldToScreenPos(RECT * convertRect, RECT * srcRect)
+{
+	HRESULT hr = S_OK;
+
+	RECT worldRect;
+	worldRect.left	= m_worldPosition.x;
+	worldRect.top	= m_worldPosition.y;
+	worldRect.right  = m_worldPosition.x+m_writeArea.right-m_writeArea.left;
+	worldRect.bottom = m_worldPosition.y+m_writeArea.bottom-m_writeArea.top;
+		
+	//Fit inside writeArea??
+	if (
+		worldRect.left < convertRect->right && worldRect.top < convertRect->bottom &&
+		worldRect.right > convertRect->left && worldRect.bottom > convertRect->top
+	   )
+	{		
+		if (convertRect->left < worldRect.left)
+		{
+			srcRect->left = worldRect.left-convertRect->left;
+			convertRect->left = worldRect.left;
+		}
+
+		if (convertRect->top < worldRect.top)
+		{
+			srcRect->top = worldRect.top-convertRect->top;
+			convertRect->top = worldRect.top;
+		}
+
+		if (convertRect->right > worldRect.right)
+		{
+			srcRect->right = srcRect->right - (convertRect->right - worldRect.right);
+			convertRect->right = worldRect.right;
+		}
+
+		if (convertRect->bottom > worldRect.bottom)
+		{
+			srcRect->bottom = srcRect->bottom - (convertRect->bottom-worldRect.bottom);
+			convertRect->bottom = worldRect.bottom;
+		}
+
+		convertRect->left	= convertRect->left   - worldRect.left + m_writeArea.left;
+		convertRect->top	= convertRect->top    -	worldRect.top  + m_writeArea.top;
+		convertRect->right	= convertRect->right  - worldRect.left + m_writeArea.left;
+		convertRect->bottom	= convertRect->bottom -	worldRect.top  + m_writeArea.top;
+	}
+	else
+	{
+		hr = E_FAIL;
+	}
+
+	return hr;
 }

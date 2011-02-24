@@ -9,6 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+class ccTileMap;
 class ccUnit  
 {
 	// A D3DDevice used for rendering
@@ -18,32 +19,26 @@ class ccUnit
 	IDirect3DSurface9 	*m_pUnitImage;
 	D3DXIMAGE_INFO m_srcInfo;
 
-	// Positions
-	POINT m_position;		// Units left upper corner Pixel position on tilemap.
-	RECT m_writeArea;		// Position of allowed area on screen.
-
-	POINT m_mapWorldPosition; // Top left corner of screen on the worldmap.
-	SIZE  m_mapWorldSize;	  // Size of the world map;
+	//Map members
+	ccTileMap * m_tileMap;
+	ccArrayList * m_unitList;	// All units in the game.
 
 	// Unit properties
+	POINT m_position;		// Units left upper corner Pixel position on worldMap.
 	SIZE  m_unitSize;
+	RECT  m_unitRect;		// Positions on the worldMap.
 	short m_speed;
 	short max_speed;
 
-public:		
-	void setMapWorldPosition(POINT *position) {m_mapWorldPosition = *position;};
-	void setMapWorldSize(SIZE *size) {m_mapWorldSize = *size;};
-	void setWriteArea(RECT const * const writeArea) {m_writeArea = *writeArea;};
+public:				
+	HRESULT isCollision(RECT *unitRect);
 	
 	SIZE * getUnitSize() {return &m_unitSize;};
 
 
-
-
 	HRESULT loadUnit();
 
-
-	void validatePosition();
+	HRESULT validRect(RECT * unitRect);
 	void setPosition(int x, int y);
 	void movePosition(int x, int y);
 	POINT * getWorldPosition();
@@ -57,7 +52,7 @@ public:
     HRESULT DeleteDeviceObjects();
 
 	// Constructor / Destructor
-	ccUnit();
+	ccUnit(ccTileMap * tileMap, ccArrayList * unitList);
 	virtual ~ccUnit();
 
 };

@@ -13,7 +13,7 @@
 	solarstrength=20;
 	lavaworld=0;
 	killmul=50;
-	timemul=0;
+	timemul=;
 	minwindspeed=0;
 	maxwindspeed=3000;
 	gravity=112;

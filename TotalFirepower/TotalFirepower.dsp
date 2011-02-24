@@ -161,14 +161,6 @@ SOURCE=.\common\include\dxutil.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\ccDebug.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\ccDebug.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\ccPlayer.cpp
 # End Source File
 # Begin Source File
@@ -241,6 +233,26 @@ SOURCE=.\src\TotalFirepower.cpp
 # Begin Source File
 
 SOURCE=.\src\TotalFirepower.h
+# End Source File
+# End Group
+# Begin Group "ccLib"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\ccLib\ccArrayList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccLib\ccArrayList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\ccDebug.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\ccDebug.h
 # End Source File
 # End Group
 # Begin Source File

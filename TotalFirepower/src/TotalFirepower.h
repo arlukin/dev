@@ -40,6 +40,9 @@ class CMyD3DApplication : public CD3DApplication
 	ccPlayer   *m_pPlayer2;				// The player
 	ccSettings *m_settings;	
 
+	ccArrayList m_units;				// Allt units, players and computers.
+
+	RECT m_oneScreenWriteArea;			// If only one player, or both player on same screen.
 	RECT m_player1WriteArea;
 	RECT m_player2WriteArea;
 
@@ -58,6 +61,7 @@ protected:
     LRESULT MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	
 
 public:
+	HRESULT drawUnits();
 	void drawStatistics();
 	HWND getWindow();
 	HRESULT checkInput();

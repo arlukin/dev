@@ -64,6 +64,9 @@ protected:
 	HRESULT loadMapData(FILE *stream);
 	HRESULT loadTileData(FILE *stream);
 public:	
+	
+	HRESULT worldToScreenPos(RECT * convertRect, RECT * srcRect);
+
 	SIZE * getWorldSize();
 	POINT *getWorldPosition();
 	void centerAround(POINT *worldPosition, SIZE * unitSize);

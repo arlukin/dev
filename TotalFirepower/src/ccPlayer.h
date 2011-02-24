@@ -14,9 +14,12 @@
 
 class ccPlayer  
 {
-	ccUnit m_unit;
+	ccUnit * m_unit;
 public:	
-	ccUnit *getUnit();
+	HRESULT createUnit(ccTileMap * tileMap, ccArrayList * unitList);
+	
+	// fix:ASSERT(m_unit); 
+	ccUnit *getUnit() {ASSERT(!m_unit);return m_unit;};
 
 	// Constructor / Destructor
 	ccPlayer();

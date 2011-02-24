@@ -15,15 +15,17 @@ class ccPlayer;
 
 ccPlayer::ccPlayer()
 {
-	getUnit()->setPosition(42, 42);
+	m_unit = NULL;
 }
 
 ccPlayer::~ccPlayer()
 {
 
+	SAFE_DELETE(m_unit);
 }
 
-ccUnit *ccPlayer::getUnit()
+HRESULT ccPlayer::createUnit(ccTileMap *tileMap, ccArrayList *unitList)
 {
-	return &m_unit;
+	m_unit = new ccUnit(tileMap, unitList);
+	return S_OK;
 }
