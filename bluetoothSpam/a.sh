@@ -1,0 +1,89 @@
+#!/usr/bin/php
+<?php
+function getAddresses()
+{
+	//$addresses = trim(shell_exec("hcitool scan| grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'"));
+	$addr = shell_exec("hcitool scan");
+	$addrResult = explode("\n", $addr);
+	unset($addrResult[0]);
+	$addrArr = array();
+	foreach($addrResult as $row)
+	{	
+		$arr = explode("\t", trim($row));
+		if (!empty($arr[1]))
+		{
+			$addrArr[trim($arr[0])] = trim($arr[1]);
+		}
+	}
+
+	return $addrArr;
+}
+
+function getChannel($addr_)
+{ 
+	$result = shell_exec("sdptool browse $addr_");
+
+	$result = substr($result, strpos($result, '"OBEX Object Push" (0x1105)'));
+	$result = substr($result, 0, strpos($result, "\n\n"));
+	
+	$result = substr($result, strpos($result, 'RFCOMM'));	
+	$result = substr($result, strpos($result, 'Channel')+9);	
+	$result = substr($result, 0, strpos($result, "\n"));
+
+	return $result;	
+}
+
+function loadAddr()
+{
+	global $sentAddr;
+	if (file_exists('addr.txt'))
+	{
+		$contents = file_get_contents('addr.txt');
+		$result = explode("\n", $contents);
+		echo "Load sentAddr, found " . (count($result)-1)  . " rows.	\n";
+		foreach($result as $row)
+		{
+			$columns = explode('|', $row);
+			$sentAddr[$columns[0]] = $columns[1];
+		}
+	}
+}
+
+function saveAddr($addr_, $name_)
+{
+	global $sentAddr;
+	
+	echo "Save $addr_ $name_\n";
+	$sentAddr[$addr_] = $name_;
+	$data = $addr_ . '|' . $name_ . "\n";
+	file_put_contents('addr.txt', $data, FILE_APPEND);
+}
+
+function broadcastLoop()
+{
+	global $sentAddr;
+	echo "Scanning\n";
+	$addrArr = getAddresses();
+
+	echo "Found: " . count($addrArr) . "\n"	;
+	foreach($addrArr as $addr => $name)
+	{			
+		if (empty($sentAddr[$addr]) && !empty($addr))
+		{
+			echo "Get channel on $addr\n";
+			$channel = getChannel($addr);
+			echo "Send to $addr on channel $channel\n";
+			shell_exec("ussp-push $addr@$channel meat_is_murder.txt meat_is_murder.txt");
+			saveAddr($addr, $name); 
+		}
+		sleep(5);
+	}
+}
+echo "Bluetooth spam\n";
+loadAddr();
+while(true)
+{
+	broadcastLoop();
+}
+
+?>
