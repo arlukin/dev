@@ -1,0 +1,21 @@
+EXPORTS
+WriteTile @1
+ClearTile @2
+MaskTile @3
+DrawLine @4
+WritePixel @5
+BMPInfo @6
+LoadBMP @7
+ConvertPalette @8
+CreateTilesFromBmp @9
+MiniGenerateDraft @10
+MiniGenerateFinal @11
+CreateTileChecksumList @12
+CopyArray @13
+BlockCreate @14
+BlockWrite @15
+BlockGet @16
+BlockExport @17
+BlockFree @18
+GAFImageLoad @19
+GetRegion @20

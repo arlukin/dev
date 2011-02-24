@@ -1,0 +1,35 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: Lights - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPEE.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"Debug/" /Fp"Debug/Lights.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
+"C:\DXSDK\Samples\C++\Direct3D\Tutorials\Tut04_Lights\Lights.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPEE.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPEF.tmp" with contents
+[
+d3dx9dt.lib d3d9.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib /nologo /stack:0x200000,0x200000 /subsystem:windows /incremental:yes /pdb:"Debug/Lights.pdb" /debug /machine:I386 /out:"Debug/Lights.exe" /pdbtype:sept /ignore:4089 /ignore:4078 
+".\Debug\Lights.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPEF.tmp"
+<h3>Output Window</h3>
+Compiling...
+Lights.cpp
+Linking...
+Creating command line "bscmake.exe /nologo /o"Debug/Lights.bsc"  ".\Debug\Lights.sbr""
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+Lights.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
